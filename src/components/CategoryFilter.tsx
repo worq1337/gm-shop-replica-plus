@@ -10,27 +10,33 @@ interface CategoryFilterProps {
 
 export function CategoryFilter({ categories, activeCategory, onCategoryChange }: CategoryFilterProps) {
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
-      <Button
-        variant={activeCategory === "all" ? "default" : "outline"}
-        onClick={() => onCategoryChange("all")}
-        className="flex items-center space-x-2"
-      >
-        <span>🎯</span>
-        <span>Все товары</span>
-      </Button>
-      
-      {categories.map((category) => (
+    <div className="w-full">
+      <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
         <Button
-          key={category.id}
-          variant={activeCategory === category.id ? "default" : "outline"}
-          onClick={() => onCategoryChange(category.id)}
-          className="flex items-center space-x-2"
+          variant={activeCategory === "all" ? "default" : "outline"}
+          onClick={() => onCategoryChange("all")}
+          size="sm"
+          className="flex items-center space-x-1.5 text-xs px-3 h-8"
         >
-          <span>{category.icon}</span>
-          <span>{category.name}</span>
+          <span>🎯</span>
+          <span className="hidden xs:inline">Все товары</span>
+          <span className="xs:hidden">Все</span>
         </Button>
-      ))}
+        
+        {categories.map((category) => (
+          <Button
+            key={category.id}
+            variant={activeCategory === category.id ? "default" : "outline"}
+            onClick={() => onCategoryChange(category.id)}
+            size="sm"
+            className="flex items-center space-x-1.5 text-xs px-3 h-8"
+          >
+            <span>{category.icon}</span>
+            <span className="hidden sm:inline">{category.name}</span>
+            <span className="sm:hidden">{category.name.split(' ')[0]}</span>
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }

@@ -27,48 +27,52 @@ export function GameCard({
   discount
 }: GameCardProps) {
   return (
-    <Card className="game-card overflow-hidden group">
+    <Card className="game-card overflow-hidden group h-full flex flex-col">
       <div className="relative">
         <img
           src={image}
           alt={title}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-32 sm:h-40 md:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
         {discount && (
-          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-bold">
+          <div className="absolute top-1 right-1 bg-red-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
             -{discount}
           </div>
         )}
-        <div className="absolute bottom-2 left-2 flex items-center space-x-1 bg-black/50 text-white px-2 py-1 rounded text-xs">
-          <Shield className="w-3 h-3" />
-          <span>Проверено</span>
+        <div className="absolute bottom-1 left-1 flex items-center space-x-1 bg-black/70 text-white px-1.5 py-0.5 rounded text-xs">
+          <Shield className="w-2.5 h-2.5" />
+          <span className="text-xs">Проверено</span>
         </div>
       </div>
       
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{title}</h3>
+      <CardContent className="p-2 sm:p-3 flex-1 flex flex-col">
+        <h3 className="font-semibold text-xs sm:text-sm md:text-base mb-2 line-clamp-2 leading-tight flex-1">
+          {title}
+        </h3>
         
-        <div className="flex items-center space-x-2 mb-3">
+        <div className="flex flex-col space-y-1 mb-3">
           <div className="flex items-center space-x-1">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm">{rating}</span>
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs">{rating}</span>
             <span className="text-xs text-gray-500">({reviews})</span>
           </div>
           <div className="flex items-center space-x-1 text-xs text-gray-500">
-            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-            <span>{seller}</span>
-            {isOnline && <Clock className="w-3 h-3 ml-1" />}
+            <div className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
+            <span className="truncate">{seller}</span>
+            {isOnline && <Clock className="w-2.5 h-2.5 ml-1" />}
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-green-600">{price} ₽</span>
-            {originalPrice && (
-              <span className="text-sm text-gray-500 line-through">{originalPrice} ₽</span>
-            )}
+        <div className="flex flex-col space-y-2 mt-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-sm sm:text-base md:text-lg font-bold text-green-600">{price} ₽</span>
+              {originalPrice && (
+                <span className="text-xs text-gray-500 line-through">{originalPrice} ₽</span>
+              )}
+            </div>
           </div>
-          <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+          <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-xs w-full">
             Купить
           </Button>
         </div>

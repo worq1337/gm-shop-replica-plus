@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { GameCard } from "@/components/GameCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
@@ -197,7 +198,7 @@ export default function Index() {
         onDeleteCategory={handleDeleteCategory}
       />
 
-      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 max-w-7xl">
         {/* Category Filter */}
         <div className="mb-4 sm:mb-6">
           <CategoryFilter 
@@ -210,44 +211,44 @@ export default function Index() {
         {/* Main Content */}
         <main>
           {/* Controls */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-4">
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <h2 className="text-xl sm:text-2xl font-bold">Товары</h2>
-              <span className="text-gray-500 text-sm sm:text-base">({filteredItems.length} товаров)</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+            <div className="flex items-center space-x-2">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">Товары</h2>
+              <span className="text-gray-500 text-sm">({filteredItems.length})</span>
             </div>
             
-            <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
-              <div className="flex items-center space-x-1 sm:space-x-2">
+            <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+              <div className="flex items-center space-x-1">
                 <Button
                   variant={viewMode === "grid" ? "default" : "outline"}
-                  size="icon"
+                  size="sm"
                   onClick={() => setViewMode("grid")}
-                  className="h-8 w-8 sm:h-10 sm:w-10"
+                  className="h-8 w-8 p-0"
                 >
-                  <Grid className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <Grid className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "outline"}
-                  size="icon"
+                  size="sm"
                   onClick={() => setViewMode("list")}
-                  className="h-8 w-8 sm:h-10 sm:w-10"
+                  className="h-8 w-8 p-0"
                 >
-                  <List className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <List className="w-4 h-4" />
                 </Button>
               </div>
               
-              <Button variant="outline" className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10">
-                <SortAsc className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Сортировка</span>
-                <span className="sm:hidden">Сорт.</span>
+              <Button variant="outline" size="sm" className="flex items-center space-x-1 text-xs px-3 h-8">
+                <SortAsc className="w-3 h-3" />
+                <span className="hidden xs:inline">Сортировка</span>
+                <span className="xs:hidden">Сорт</span>
               </Button>
             </div>
           </div>
 
           {/* Items Grid */}
-          <div className={`grid gap-3 sm:gap-4 md:gap-6 ${
+          <div className={`grid gap-3 sm:gap-4 ${
             viewMode === "grid" 
-              ? "grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6" 
+              ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6" 
               : "grid-cols-1"
           }`}>
             {filteredItems.map((item) => (
@@ -258,63 +259,64 @@ export default function Index() {
           </div>
 
           {filteredItems.length === 0 && (
-            <div className="text-center py-8 sm:py-12">
-              <p className="text-gray-500 text-base sm:text-lg px-4">В этой категории пока нет товаров</p>
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-base px-4">В этой категории пока нет товаров</p>
             </div>
           )}
         </main>
       </div>
 
       {/* Footer Section */}
-      <footer className="gradient-bg text-white py-8 sm:py-12 md:py-16 mt-8 sm:mt-12 md:mt-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
+      <footer className="gradient-bg text-white py-8 md:py-12 mt-12">
+        <div className="container mx-auto px-4 text-center max-w-6xl">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
             Лучшие игровые товары по выгодным ценам
           </h2>
-          <p className="text-base sm:text-lg md:text-xl opacity-90 mb-6 sm:mb-8 px-4">
+          <p className="text-sm sm:text-base md:text-lg opacity-90 mb-6 px-2">
             Безопасные сделки, мгновенная доставка, гарантия качества
           </p>
-          <div className="flex flex-col sm:flex-row justify-center sm:space-x-4 md:space-x-8 text-xs sm:text-sm mb-8 sm:mb-12 space-y-3 sm:space-y-0">
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full"></div>
+          
+          <div className="flex flex-col sm:flex-row justify-center items-center sm:space-x-6 text-xs sm:text-sm mb-8 space-y-2 sm:space-y-0">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
               <span>1000+ довольных покупателей</span>
             </div>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full"></div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
               <span>24/7 поддержка</span>
             </div>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-purple-400 rounded-full"></div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
               <span>Мгновенная доставка</span>
             </div>
           </div>
 
           {/* Contact and Copyright Information */}
-          <div className="border-t border-white/20 pt-6 sm:pt-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-center md:text-left">
+          <div className="border-t border-white/20 pt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 text-center sm:text-left">
               <div className="space-y-2">
-                <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Техническая поддержка</h3>
-                <p className="text-gray-300 text-xs sm:text-sm">
+                <h3 className="font-semibold mb-2 text-sm">Техническая поддержка</h3>
+                <p className="text-gray-300 text-xs">
                   Email: <a href="mailto:help@gmshop.pw" className="text-blue-300 hover:text-blue-200 break-all">help@gmshop.pw</a>
                 </p>
-                <p className="text-gray-300 text-xs sm:text-sm">
+                <p className="text-gray-300 text-xs">
                   Telegram: <a href="https://t.me/kulacodmyt" target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200">@kulacodmyt</a>
                 </p>
               </div>
               
               <div className="space-y-2">
-                <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">О нас</h3>
-                <p className="text-gray-300 text-xs sm:text-sm px-2 md:px-0">
-                  GM Shop - надежный магазин игровых товаров с гарантией качества и быстрой доставкой
+                <h3 className="font-semibold mb-2 text-sm">О нас</h3>
+                <p className="text-gray-300 text-xs">
+                  GM Shop - надежный магазин игровых товаров с гарантией качества
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Правовая информация</h3>
-                <p className="text-gray-300 text-xs sm:text-sm">
+              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                <h3 className="font-semibold mb-2 text-sm">Правовая информация</h3>
+                <p className="text-gray-300 text-xs">
                   © {new Date().getFullYear()} GM Shop. Все права защищены.
                 </p>
-                <p className="text-gray-300 text-xs mt-2">
+                <p className="text-gray-300 text-xs">
                   Защита персональных данных
                 </p>
               </div>
