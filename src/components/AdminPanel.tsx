@@ -30,6 +30,17 @@ interface AdminPanelProps {
   onClose?: () => void;
 }
 
+interface SiteSettings {
+  siteName: string;
+  contactEmail: string;
+  siteDescription: string;
+  telegramBot: string;
+  currency: string;
+  commissionRate: string;
+  minPrice: string;
+  maxPrice: string;
+}
+
 function AdminPanelContent({
   items,
   categories,
@@ -96,6 +107,17 @@ function AdminPanelContent({
     reviewMessage: "Спасибо за покупку! Оставьте отзыв в нашей группе Telegram"
   });
 
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>({
+    siteName: "GM Shop",
+    contactEmail: "support@gmshop.ru",
+    siteDescription: "Лучший магазин игровых товаров",
+    telegramBot: "@gmshop_bot",
+    currency: "₽",
+    commissionRate: "5",
+    minPrice: "10",
+    maxPrice: "100000"
+  });
+
   const [newItem, setNewItem] = useState({
     title: "",
     price: "",
@@ -146,8 +168,14 @@ function AdminPanelContent({
         setImagePreview(result);
         if (editingItem) {
           setEditingItem({...editingItem, image: result});
+        } else if (editingMobileGame) {
+          setEditingMobileGame({...editingMobileGame, image: result});
+        } else if (editingGameIcon) {
+          setEditingGameIcon({...editingGameIcon, image: result});
         } else {
           setNewItem({...newItem, image: result});
+          setNewMobileGame({...newMobileGame, image: result});
+          setNewGameIcon({...newGameIcon, image: result});
         }
       };
       reader.readAsDataURL(file);
@@ -159,8 +187,14 @@ function AdminPanelContent({
     setImagePreview("");
     if (editingItem) {
       setEditingItem({...editingItem, image: ""});
+    } else if (editingMobileGame) {
+      setEditingMobileGame({...editingMobileGame, image: ""});
+    } else if (editingGameIcon) {
+      setEditingGameIcon({...editingGameIcon, image: ""});
     } else {
       setNewItem({...newItem, image: ""});
+      setNewMobileGame({...newMobileGame, image: ""});
+      setNewGameIcon({...newGameIcon, image: ""});
     }
   };
 
@@ -169,6 +203,49 @@ function AdminPanelContent({
       console.log(`Order ${orderId} completed with photo:`, completedOrderPhoto);
       // Here you would update the order status
     }
+  };
+
+  const handleAddMobileGame = () => {
+    onAddMobileGame(newMobileGame);
+    setNewMobileGame({
+      title: "",
+      image: "",
+      description: "",
+      isPopular: false
+    });
+    clearImage();
+  };
+
+  const handleSaveMobileGame = () => {
+    if (editingMobileGame) {
+      onEditMobileGame(editingMobileGame.id, editingMobileGame);
+      setEditingMobileGame(null);
+      clearImage();
+    }
+  };
+
+  const handleAddGameIcon = () => {
+    onAddGameIcon(newGameIcon);
+    setNewGameIcon({
+      title: "",
+      image: "",
+      description: "",
+      category: ""
+    });
+    clearImage();
+  };
+
+  const handleSaveGameIcon = () => {
+    if (editingGameIcon) {
+      onEditGameIcon(editingGameIcon.id, editingGameIcon);
+      setEditingGameIcon(null);
+      clearImage();
+    }
+  };
+
+  const handleSaveSettings = () => {
+    console.log("Site settings saved:", siteSettings);
+    // Here you would save the settings to your backend or local storage
   };
 
   const filteredItems = selectedCategory ? items.filter(item => item.category === selectedCategory) : items;
