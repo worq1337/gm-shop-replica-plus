@@ -21,3 +21,19 @@ export interface Category {
   icon: string;
   description: string;
 }
+
+export interface MobileGame {
+  id: string;
+  title: string;
+  image: string;
+  description: string;
+  isPopular?: boolean;
+}
+
+export interface GameIcon {
+  id: string;
+  title: string;
+  image: string;
+  description: string;
+  category?: string;
+}

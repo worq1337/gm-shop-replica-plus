@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { GameCard } from "@/components/GameCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
@@ -9,28 +8,44 @@ import { MobileGamesSection } from "@/components/MobileGamesSection";
 import { Button } from "@/components/ui/button";
 import { Grid, List, SortAsc } from "lucide-react";
 import { useState } from "react";
-import { GameItem, Category } from "@/types";
+import { GameItem, Category, MobileGame, GameIcon } from "@/types";
 
 interface IndexProps {
   items: GameItem[];
   categories: Category[];
+  mobileGames: MobileGame[];
+  gameIcons: GameIcon[];
   onAddItem: (item: Omit<GameItem, 'id'>) => void;
   onEditItem: (id: string, item: Partial<GameItem>) => void;
   onDeleteItem: (id: string) => void;
   onAddCategory: (category: Omit<Category, 'id'>) => void;
   onEditCategory: (id: string, category: Partial<Category>) => void;
   onDeleteCategory: (id: string) => void;
+  onAddMobileGame: (game: Omit<MobileGame, 'id'>) => void;
+  onEditMobileGame: (id: string, game: Partial<MobileGame>) => void;
+  onDeleteMobileGame: (id: string) => void;
+  onAddGameIcon: (icon: Omit<GameIcon, 'id'>) => void;
+  onEditGameIcon: (id: string, icon: Partial<GameIcon>) => void;
+  onDeleteGameIcon: (id: string) => void;
 }
 
 export default function Index({
   items,
   categories,
+  mobileGames,
+  gameIcons,
   onAddItem,
   onEditItem,
   onDeleteItem,
   onAddCategory,
   onEditCategory,
-  onDeleteCategory
+  onDeleteCategory,
+  onAddMobileGame,
+  onEditMobileGame,
+  onDeleteMobileGame,
+  onAddGameIcon,
+  onEditGameIcon,
+  onDeleteGameIcon
 }: IndexProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -41,17 +56,34 @@ export default function Index({
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header 
+        items={items}
+        categories={categories}
+        mobileGames={mobileGames}
+        gameIcons={gameIcons}
+        onAddItem={onAddItem}
+        onEditItem={onEditItem}
+        onDeleteItem={onDeleteItem}
+        onAddCategory={onAddCategory}
+        onEditCategory={onEditCategory}
+        onDeleteCategory={onDeleteCategory}
+        onAddMobileGame={onAddMobileGame}
+        onEditMobileGame={onEditMobileGame}
+        onDeleteMobileGame={onDeleteMobileGame}
+        onAddGameIcon={onAddGameIcon}
+        onEditGameIcon={onEditGameIcon}
+        onDeleteGameIcon={onDeleteGameIcon}
+      />
 
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 max-w-7xl">
         {/* Promo Banners */}
         <PromoBanners />
 
         {/* Game Icons */}
-        <GameIcons />
+        <GameIcons gameIcons={gameIcons} />
 
         {/* Mobile Games Section */}
-        <MobileGamesSection />
+        <MobileGamesSection mobileGames={mobileGames} />
 
         {/* Category Filter */}
         <div className="mb-3 sm:mb-6">

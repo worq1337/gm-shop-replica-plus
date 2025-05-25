@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
-import { GameItem, Category } from "@/types";
+import { GameItem, Category, MobileGame, GameIcon } from "@/types";
 
 const queryClient = new QueryClient();
 
@@ -143,9 +143,59 @@ const initialGameItems: GameItem[] = [
   }
 ];
 
+const initialMobileGames: MobileGame[] = [
+  {
+    id: "1",
+    title: "PUBG Mobile",
+    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=300&fit=crop",
+    description: "Battle royale игра",
+    isPopular: true
+  },
+  {
+    id: "2",
+    title: "Free Fire",
+    image: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=400&h=300&fit=crop",
+    description: "Популярная мобильная игра",
+    isPopular: true
+  },
+  {
+    id: "3",
+    title: "Call of Duty Mobile",
+    image: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop",
+    description: "Мобильный шутер",
+    isPopular: false
+  }
+];
+
+const initialGameIcons: GameIcon[] = [
+  {
+    id: "1",
+    title: "Fortnite",
+    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=100&h=100&fit=crop",
+    description: "Battle royale",
+    category: "Экшн"
+  },
+  {
+    id: "2",
+    title: "Minecraft",
+    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop",
+    description: "Песочница",
+    category: "Аркада"
+  },
+  {
+    id: "3",
+    title: "GTA V",
+    image: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=100&h=100&fit=crop",
+    description: "Открытый мир",
+    category: "Экшн"
+  }
+];
+
 const App: React.FC = () => {
   const [gameItems, setGameItems] = useState<GameItem[]>(initialGameItems);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [mobileGames, setMobileGames] = useState<MobileGame[]>(initialMobileGames);
+  const [gameIcons, setGameIcons] = useState<GameIcon[]>(initialGameIcons);
 
   const handleAddItem = (newItem: Omit<GameItem, 'id'>) => {
     const item: GameItem = {
@@ -183,6 +233,42 @@ const App: React.FC = () => {
     setCategories(categories.filter(category => category.id !== id));
   };
 
+  const handleAddMobileGame = (newGame: Omit<MobileGame, 'id'>) => {
+    const game: MobileGame = {
+      ...newGame,
+      id: Date.now().toString()
+    };
+    setMobileGames([...mobileGames, game]);
+  };
+
+  const handleEditMobileGame = (id: string, updatedGame: Partial<MobileGame>) => {
+    setMobileGames(mobileGames.map(game => 
+      game.id === id ? { ...game, ...updatedGame } : game
+    ));
+  };
+
+  const handleDeleteMobileGame = (id: string) => {
+    setMobileGames(mobileGames.filter(game => game.id !== id));
+  };
+
+  const handleAddGameIcon = (newIcon: Omit<GameIcon, 'id'>) => {
+    const icon: GameIcon = {
+      ...newIcon,
+      id: Date.now().toString()
+    };
+    setGameIcons([...gameIcons, icon]);
+  };
+
+  const handleEditGameIcon = (id: string, updatedIcon: Partial<GameIcon>) => {
+    setGameIcons(gameIcons.map(icon => 
+      icon.id === id ? { ...icon, ...updatedIcon } : icon
+    ));
+  };
+
+  const handleDeleteGameIcon = (id: string) => {
+    setGameIcons(gameIcons.filter(icon => icon.id !== id));
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -196,12 +282,20 @@ const App: React.FC = () => {
                 <Index 
                   items={gameItems}
                   categories={categories}
+                  mobileGames={mobileGames}
+                  gameIcons={gameIcons}
                   onAddItem={handleAddItem}
                   onEditItem={handleEditItem}
                   onDeleteItem={handleDeleteItem}
                   onAddCategory={handleAddCategory}
                   onEditCategory={handleEditCategory}
                   onDeleteCategory={handleDeleteCategory}
+                  onAddMobileGame={handleAddMobileGame}
+                  onEditMobileGame={handleEditMobileGame}
+                  onDeleteMobileGame={handleDeleteMobileGame}
+                  onAddGameIcon={handleAddGameIcon}
+                  onEditGameIcon={handleEditGameIcon}
+                  onDeleteGameIcon={handleDeleteGameIcon}
                 />
               } 
             />
@@ -211,12 +305,20 @@ const App: React.FC = () => {
                 <Admin 
                   items={gameItems}
                   categories={categories}
+                  mobileGames={mobileGames}
+                  gameIcons={gameIcons}
                   onAddItem={handleAddItem}
                   onEditItem={handleEditItem}
                   onDeleteItem={handleDeleteItem}
                   onAddCategory={handleAddCategory}
                   onEditCategory={handleEditCategory}
                   onDeleteCategory={handleDeleteCategory}
+                  onAddMobileGame={handleAddMobileGame}
+                  onEditMobileGame={handleEditMobileGame}
+                  onDeleteMobileGame={handleDeleteMobileGame}
+                  onAddGameIcon={handleAddGameIcon}
+                  onEditGameIcon={handleEditGameIcon}
+                  onDeleteGameIcon={handleDeleteGameIcon}
                 />
               } 
             />

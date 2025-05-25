@@ -6,33 +6,51 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Settings, Plus, Edit, Trash2, Upload, X, Save } from "lucide-react";
-import { GameItem, Category } from "@/types";
+import { GameItem, Category, MobileGame, GameIcon } from "@/types";
 
 interface AdminPanelProps {
   items: GameItem[];
   categories: Category[];
+  mobileGames: MobileGame[];
+  gameIcons: GameIcon[];
   onAddItem: (item: Omit<GameItem, 'id'>) => void;
   onEditItem: (id: string, item: Partial<GameItem>) => void;
   onDeleteItem: (id: string) => void;
   onAddCategory: (category: Omit<Category, 'id'>) => void;
   onEditCategory: (id: string, category: Partial<Category>) => void;
   onDeleteCategory: (id: string) => void;
+  onAddMobileGame: (game: Omit<MobileGame, 'id'>) => void;
+  onEditMobileGame: (id: string, game: Partial<MobileGame>) => void;
+  onDeleteMobileGame: (id: string) => void;
+  onAddGameIcon: (icon: Omit<GameIcon, 'id'>) => void;
+  onEditGameIcon: (id: string, icon: Partial<GameIcon>) => void;
+  onDeleteGameIcon: (id: string) => void;
   isStandalone?: boolean;
 }
 
 function AdminPanelContent({
   items,
   categories,
+  mobileGames,
+  gameIcons,
   onAddItem,
   onEditItem,
   onDeleteItem,
   onAddCategory,
   onEditCategory,
-  onDeleteCategory
+  onDeleteCategory,
+  onAddMobileGame,
+  onEditMobileGame,
+  onDeleteMobileGame,
+  onAddGameIcon,
+  onEditGameIcon,
+  onDeleteGameIcon
 }: Omit<AdminPanelProps, 'isStandalone'>) {
-  const [activeTab, setActiveTab] = useState<"items" | "categories" | "settings">("items");
+  const [activeTab, setActiveTab] = useState<"items" | "categories" | "mobile-games" | "game-icons" | "settings">("items");
   const [editingItem, setEditingItem] = useState<GameItem | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingMobileGame, setEditingMobileGame] = useState<MobileGame | null>(null);
+  const [editingGameIcon, setEditingGameIcon] = useState<GameIcon | null>(null);
 
   const [newItem, setNewItem] = useState({
     title: "",
@@ -52,6 +70,20 @@ function AdminPanelContent({
     name: "",
     icon: "",
     description: ""
+  });
+
+  const [newMobileGame, setNewMobileGame] = useState({
+    title: "",
+    image: "",
+    description: "",
+    isPopular: false
+  });
+
+  const [newGameIcon, setNewGameIcon] = useState({
+    title: "",
+    image: "",
+    description: "",
+    category: ""
   });
 
   const [siteSettings, setSiteSettings] = useState({
@@ -141,6 +173,44 @@ function AdminPanelContent({
     }
   };
 
+  const handleAddMobileGame = () => {
+    onAddMobileGame(newMobileGame);
+    setNewMobileGame({
+      title: "",
+      image: "",
+      description: "",
+      isPopular: false
+    });
+    clearImage();
+  };
+
+  const handleSaveMobileGame = () => {
+    if (editingMobileGame) {
+      onEditMobileGame(editingMobileGame.id, editingMobileGame);
+      setEditingMobileGame(null);
+      clearImage();
+    }
+  };
+
+  const handleAddGameIcon = () => {
+    onAddGameIcon(newGameIcon);
+    setNewGameIcon({
+      title: "",
+      image: "",
+      description: "",
+      category: ""
+    });
+    clearImage();
+  };
+
+  const handleSaveGameIcon = () => {
+    if (editingGameIcon) {
+      onEditGameIcon(editingGameIcon.id, editingGameIcon);
+      setEditingGameIcon(null);
+      clearImage();
+    }
+  };
+
   const handleSaveSettings = () => {
     localStorage.setItem('siteSettings', JSON.stringify(siteSettings));
     console.log('Настройки сохранены:', siteSettings);
@@ -148,24 +218,41 @@ function AdminPanelContent({
 
   return (
     <div className="space-y-6">
-      <div className="flex space-x-4 mb-6">
+      <div className="flex flex-wrap space-x-2 mb-6">
         <Button
           variant={activeTab === "items" ? "default" : "outline"}
           onClick={() => setActiveTab("items")}
+          size="sm"
         >
           Товары
         </Button>
         <Button
           variant={activeTab === "categories" ? "default" : "outline"}
           onClick={() => setActiveTab("categories")}
+          size="sm"
         >
           Категории
         </Button>
         <Button
+          variant={activeTab === "mobile-games" ? "default" : "outline"}
+          onClick={() => setActiveTab("mobile-games")}
+          size="sm"
+        >
+          Мобильные игры
+        </Button>
+        <Button
+          variant={activeTab === "game-icons" ? "default" : "outline"}
+          onClick={() => setActiveTab("game-icons")}
+          size="sm"
+        >
+          Игровые иконки
+        </Button>
+        <Button
           variant={activeTab === "settings" ? "default" : "outline"}
           onClick={() => setActiveTab("settings")}
+          size="sm"
         >
-          Настройки сайта
+          Настройки
         </Button>
       </div>
 
@@ -569,6 +656,428 @@ function AdminPanelContent({
         </div>
       )}
 
+      {activeTab === "mobile-games" && (
+        <div className="space-y-6">
+          {!editingMobileGame ? (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+              <h3 className="col-span-2 font-semibold mb-4">Добавить мобильную игру</h3>
+              
+              <div>
+                <Label>Название игры</Label>
+                <Input
+                  value={newMobileGame.title}
+                  onChange={(e) => setNewMobileGame({...newMobileGame, title: e.target.value})}
+                  placeholder="Название мобильной игры"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="popular"
+                  checked={newMobileGame.isPopular}
+                  onChange={(e) => setNewMobileGame({...newMobileGame, isPopular: e.target.checked})}
+                />
+                <Label htmlFor="popular">Популярная игра</Label>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Изображение игры</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="mobile-game-upload"
+                    />
+                    <Label 
+                      htmlFor="mobile-game-upload"
+                      className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Выбрать изображение</span>
+                    </Label>
+                    {imagePreview && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={clearImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {imagePreview && (
+                    <div className="relative w-32 h-24 border rounded overflow-hidden">
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <Input
+                    value={newMobileGame.image}
+                    onChange={(e) => setNewMobileGame({...newMobileGame, image: e.target.value})}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={newMobileGame.description}
+                  onChange={(e) => setNewMobileGame({...newMobileGame, description: e.target.value})}
+                  placeholder="Описание мобильной игры"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Button onClick={handleAddMobileGame} className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Добавить мобильную игру
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-purple-50">
+              <h3 className="col-span-2 font-semibold mb-4">Редактировать мобильную игру</h3>
+              
+              <div>
+                <Label>Название игры</Label>
+                <Input
+                  value={editingMobileGame.title}
+                  onChange={(e) => setEditingMobileGame({...editingMobileGame, title: e.target.value})}
+                  placeholder="Название мобильной игры"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="edit-popular"
+                  checked={editingMobileGame.isPopular || false}
+                  onChange={(e) => setEditingMobileGame({...editingMobileGame, isPopular: e.target.checked})}
+                />
+                <Label htmlFor="edit-popular">Популярная игра</Label>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Изображение игры</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="edit-mobile-game-upload"
+                    />
+                    <Label 
+                      htmlFor="edit-mobile-game-upload"
+                      className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Изменить изображение</span>
+                    </Label>
+                    {(imagePreview || editingMobileGame.image) && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={clearImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {(imagePreview || editingMobileGame.image) && (
+                    <div className="relative w-32 h-24 border rounded overflow-hidden">
+                      <img 
+                        src={imagePreview || editingMobileGame.image} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <Input
+                    value={editingMobileGame.image}
+                    onChange={(e) => setEditingMobileGame({...editingMobileGame, image: e.target.value})}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={editingMobileGame.description}
+                  onChange={(e) => setEditingMobileGame({...editingMobileGame, description: e.target.value})}
+                  placeholder="Описание мобильной игры"
+                />
+              </div>
+
+              <div className="col-span-2 flex space-x-2">
+                <Button onClick={handleSaveMobileGame} className="flex-1">
+                  <Save className="w-4 h-4 mr-2" />
+                  Сохранить изменения
+                </Button>
+                <Button variant="outline" onClick={() => setEditingMobileGame(null)} className="flex-1">
+                  Отменить
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h3 className="font-semibold">Управление мобильными играми</h3>
+            {mobileGames.map((game) => (
+              <div key={game.id} className="flex items-center justify-between p-3 border rounded">
+                <div className="flex items-center space-x-3">
+                  {game.image && (
+                    <img 
+                      src={game.image} 
+                      alt={game.title}
+                      className="w-12 h-8 object-cover rounded"
+                    />
+                  )}
+                  <div>
+                    <span className="font-medium">{game.title}</span>
+                    {game.isPopular && <span className="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Популярная</span>}
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button size="sm" variant="outline" onClick={() => setEditingMobileGame(game)}>
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => onDeleteMobileGame(game.id)}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "game-icons" && (
+        <div className="space-y-6">
+          {!editingGameIcon ? (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+              <h3 className="col-span-2 font-semibold mb-4">Добавить игровую иконку</h3>
+              
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={newGameIcon.title}
+                  onChange={(e) => setNewGameIcon({...newGameIcon, title: e.target.value})}
+                  placeholder="Название игры"
+                />
+              </div>
+
+              <div>
+                <Label>Категория</Label>
+                <Input
+                  value={newGameIcon.category}
+                  onChange={(e) => setNewGameIcon({...newGameIcon, category: e.target.value})}
+                  placeholder="Категория (опционально)"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Изображение иконки</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="game-icon-upload"
+                    />
+                    <Label 
+                      htmlFor="game-icon-upload"
+                      className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Выбрать изображение</span>
+                    </Label>
+                    {imagePreview && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={clearImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {imagePreview && (
+                    <div className="relative w-16 h-16 border rounded overflow-hidden">
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <Input
+                    value={newGameIcon.image}
+                    onChange={(e) => setNewGameIcon({...newGameIcon, image: e.target.value})}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={newGameIcon.description}
+                  onChange={(e) => setNewGameIcon({...newGameIcon, description: e.target.value})}
+                  placeholder="Описание игры"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Button onClick={handleAddGameIcon} className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Добавить игровую иконку
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-orange-50">
+              <h3 className="col-span-2 font-semibold mb-4">Редактировать игровую иконку</h3>
+              
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={editingGameIcon.title}
+                  onChange={(e) => setEditingGameIcon({...editingGameIcon, title: e.target.value})}
+                  placeholder="Название игры"
+                />
+              </div>
+
+              <div>
+                <Label>Категория</Label>
+                <Input
+                  value={editingGameIcon.category || ""}
+                  onChange={(e) => setEditingGameIcon({...editingGameIcon, category: e.target.value})}
+                  placeholder="Категория (опционально)"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Изображение иконки</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="edit-game-icon-upload"
+                    />
+                    <Label 
+                      htmlFor="edit-game-icon-upload"
+                      className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Изменить изображение</span>
+                    </Label>
+                    {(imagePreview || editingGameIcon.image) && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={clearImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {(imagePreview || editingGameIcon.image) && (
+                    <div className="relative w-16 h-16 border rounded overflow-hidden">
+                      <img 
+                        src={imagePreview || editingGameIcon.image} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <Input
+                    value={editingGameIcon.image}
+                    onChange={(e) => setEditingGameIcon({...editingGameIcon, image: e.target.value})}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={editingGameIcon.description}
+                  onChange={(e) => setEditingGameIcon({...editingGameIcon, description: e.target.value})}
+                  placeholder="Описание игры"
+                />
+              </div>
+
+              <div className="col-span-2 flex space-x-2">
+                <Button onClick={handleSaveGameIcon} className="flex-1">
+                  <Save className="w-4 h-4 mr-2" />
+                  Сохранить изменения
+                </Button>
+                <Button variant="outline" onClick={() => setEditingGameIcon(null)} className="flex-1">
+                  Отменить
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h3 className="font-semibold">Управление игровыми иконками</h3>
+            {gameIcons.map((icon) => (
+              <div key={icon.id} className="flex items-center justify-between p-3 border rounded">
+                <div className="flex items-center space-x-3">
+                  {icon.image && (
+                    <img 
+                      src={icon.image} 
+                      alt={icon.title}
+                      className="w-10 h-10 object-cover rounded"
+                    />
+                  )}
+                  <div>
+                    <span className="font-medium">{icon.title}</span>
+                    {icon.category && <span className="ml-2 text-sm text-gray-500">({icon.category})</span>}
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button size="sm" variant="outline" onClick={() => setEditingGameIcon(icon)}>
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => onDeleteGameIcon(icon.id)}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {activeTab === "settings" && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
@@ -668,12 +1177,20 @@ function AdminPanelContent({
 export function AdminPanel({
   items,
   categories,
+  mobileGames,
+  gameIcons,
   onAddItem,
   onEditItem,
   onDeleteItem,
   onAddCategory,
   onEditCategory,
   onDeleteCategory,
+  onAddMobileGame,
+  onEditMobileGame,
+  onDeleteMobileGame,
+  onAddGameIcon,
+  onEditGameIcon,
+  onDeleteGameIcon,
   isStandalone = false
 }: AdminPanelProps) {
   if (isStandalone) {
@@ -681,12 +1198,20 @@ export function AdminPanel({
       <AdminPanelContent
         items={items}
         categories={categories}
+        mobileGames={mobileGames}
+        gameIcons={gameIcons}
         onAddItem={onAddItem}
         onEditItem={onEditItem}
         onDeleteItem={onDeleteItem}
         onAddCategory={onAddCategory}
         onEditCategory={onEditCategory}
         onDeleteCategory={onDeleteCategory}
+        onAddMobileGame={onAddMobileGame}
+        onEditMobileGame={onEditMobileGame}
+        onDeleteMobileGame={onDeleteMobileGame}
+        onAddGameIcon={onAddGameIcon}
+        onEditGameIcon={onEditGameIcon}
+        onDeleteGameIcon={onDeleteGameIcon}
       />
     );
   }
@@ -706,12 +1231,20 @@ export function AdminPanel({
         <AdminPanelContent
           items={items}
           categories={categories}
+          mobileGames={mobileGames}
+          gameIcons={gameIcons}
           onAddItem={onAddItem}
           onEditItem={onEditItem}
           onDeleteItem={onDeleteItem}
           onAddCategory={onAddCategory}
           onEditCategory={onEditCategory}
           onDeleteCategory={onDeleteCategory}
+          onAddMobileGame={onAddMobileGame}
+          onEditMobileGame={onEditMobileGame}
+          onDeleteMobileGame={onDeleteMobileGame}
+          onAddGameIcon={onAddGameIcon}
+          onEditGameIcon={onEditGameIcon}
+          onDeleteGameIcon={onDeleteGameIcon}
         />
       </DialogContent>
     </Dialog>

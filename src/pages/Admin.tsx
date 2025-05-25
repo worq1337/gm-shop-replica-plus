@@ -1,28 +1,44 @@
 
 import { useState } from "react";
 import { AdminPanel } from "@/components/AdminPanel";
-import { GameItem, Category } from "@/types";
+import { GameItem, Category, MobileGame, GameIcon } from "@/types";
 
 interface AdminProps {
   items: GameItem[];
   categories: Category[];
+  mobileGames: MobileGame[];
+  gameIcons: GameIcon[];
   onAddItem: (item: Omit<GameItem, 'id'>) => void;
   onEditItem: (id: string, item: Partial<GameItem>) => void;
   onDeleteItem: (id: string) => void;
   onAddCategory: (category: Omit<Category, 'id'>) => void;
   onEditCategory: (id: string, category: Partial<Category>) => void;
   onDeleteCategory: (id: string) => void;
+  onAddMobileGame: (game: Omit<MobileGame, 'id'>) => void;
+  onEditMobileGame: (id: string, game: Partial<MobileGame>) => void;
+  onDeleteMobileGame: (id: string) => void;
+  onAddGameIcon: (icon: Omit<GameIcon, 'id'>) => void;
+  onEditGameIcon: (id: string, icon: Partial<GameIcon>) => void;
+  onDeleteGameIcon: (id: string) => void;
 }
 
 export default function Admin({
   items,
   categories,
+  mobileGames,
+  gameIcons,
   onAddItem,
   onEditItem,
   onDeleteItem,
   onAddCategory,
   onEditCategory,
-  onDeleteCategory
+  onDeleteCategory,
+  onAddMobileGame,
+  onEditMobileGame,
+  onDeleteMobileGame,
+  onAddGameIcon,
+  onEditGameIcon,
+  onDeleteGameIcon
 }: AdminProps) {
   return (
     <div className="min-h-screen bg-background">
@@ -33,12 +49,20 @@ export default function Admin({
             <AdminPanel
               items={items}
               categories={categories}
+              mobileGames={mobileGames}
+              gameIcons={gameIcons}
               onAddItem={onAddItem}
               onEditItem={onEditItem}
               onDeleteItem={onDeleteItem}
               onAddCategory={onAddCategory}
               onEditCategory={onEditCategory}
               onDeleteCategory={onDeleteCategory}
+              onAddMobileGame={onAddMobileGame}
+              onEditMobileGame={onEditMobileGame}
+              onDeleteMobileGame={onDeleteMobileGame}
+              onAddGameIcon={onAddGameIcon}
+              onEditGameIcon={onEditGameIcon}
+              onDeleteGameIcon={onDeleteGameIcon}
               isStandalone={true}
             />
           </div>
