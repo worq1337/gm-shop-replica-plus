@@ -2,6 +2,7 @@
 import { Header } from "@/components/Header";
 import { GameCard } from "@/components/GameCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
+import { SupportChat } from "@/components/SupportChat";
 import { Button } from "@/components/ui/button";
 import { Grid, List, SortAsc } from "lucide-react";
 import { useState } from "react";
@@ -106,6 +107,9 @@ export default function Index({
           )}
         </main>
       </div>
+
+      {/* Support Chat */}
+      <SupportChat />
 
       {/* Footer Section */}
       <footer className="gradient-bg text-white py-6 sm:py-8 md:py-12 mt-8 sm:mt-12">
