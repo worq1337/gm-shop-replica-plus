@@ -3,6 +3,9 @@ import { Header } from "@/components/Header";
 import { GameCard } from "@/components/GameCard";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { SupportChat } from "@/components/SupportChat";
+import { PromoBanners } from "@/components/PromoBanners";
+import { GameIcons } from "@/components/GameIcons";
+import { MobileGamesSection } from "@/components/MobileGamesSection";
 import { Button } from "@/components/ui/button";
 import { Grid, List, SortAsc } from "lucide-react";
 import { useState } from "react";
@@ -41,6 +44,15 @@ export default function Index({
       <Header />
 
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 max-w-7xl">
+        {/* Promo Banners */}
+        <PromoBanners />
+
+        {/* Game Icons */}
+        <GameIcons />
+
+        {/* Mobile Games Section */}
+        <MobileGamesSection />
+
         {/* Category Filter */}
         <div className="mb-3 sm:mb-6">
           <CategoryFilter 
