@@ -5,9 +5,48 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "./ThemeToggle";
 import { AuthModal } from "./AuthModal";
+import { AdminPanel } from "./AdminPanel";
+import { GameItem, Category, MobileGame, GameIcon } from "@/types";
 
-export function Header() {
+interface HeaderProps {
+  items: GameItem[];
+  categories: Category[];
+  mobileGames: MobileGame[];
+  gameIcons: GameIcon[];
+  onAddItem: (item: Omit<GameItem, 'id'>) => void;
+  onEditItem: (id: string, item: Partial<GameItem>) => void;
+  onDeleteItem: (id: string) => void;
+  onAddCategory: (category: Omit<Category, 'id'>) => void;
+  onEditCategory: (id: string, category: Partial<Category>) => void;
+  onDeleteCategory: (id: string) => void;
+  onAddMobileGame: (game: Omit<MobileGame, 'id'>) => void;
+  onEditMobileGame: (id: string, game: Partial<MobileGame>) => void;
+  onDeleteMobileGame: (id: string) => void;
+  onAddGameIcon: (icon: Omit<GameIcon, 'id'>) => void;
+  onEditGameIcon: (id: string, icon: Partial<GameIcon>) => void;
+  onDeleteGameIcon: (id: string) => void;
+}
+
+export function Header({
+  items,
+  categories,
+  mobileGames,
+  gameIcons,
+  onAddItem,
+  onEditItem,
+  onDeleteItem,
+  onAddCategory,
+  onEditCategory,
+  onDeleteCategory,
+  onAddMobileGame,
+  onEditMobileGame,
+  onDeleteMobileGame,
+  onAddGameIcon,
+  onEditGameIcon,
+  onDeleteGameIcon
+}: HeaderProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
 
   return (
     <>
@@ -71,6 +110,13 @@ export function Header() {
               <Button variant="ghost" className="text-white hover:bg-white/20 text-xs sm:text-sm whitespace-nowrap">
                 Акции
               </Button>
+              <Button 
+                variant="ghost" 
+                className="text-white hover:bg-white/20 text-xs sm:text-sm whitespace-nowrap"
+                onClick={() => setIsAdminPanelOpen(true)}
+              >
+                Админ
+              </Button>
             </div>
           </nav>
         </div>
@@ -79,6 +125,28 @@ export function Header() {
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
+      />
+
+      <AdminPanel
+        isOpen={isAdminPanelOpen}
+        onClose={() => setIsAdminPanelOpen(false)}
+        items={items}
+        categories={categories}
+        mobileGames={mobileGames}
+        gameIcons={gameIcons}
+        onAddItem={onAddItem}
+        onEditItem={onEditItem}
+        onDeleteItem={onDeleteItem}
+        onAddCategory={onAddCategory}
+        onEditCategory={onEditCategory}
+        onDeleteCategory={onDeleteCategory}
+        onAddMobileGame={onAddMobileGame}
+        onEditMobileGame={onEditMobileGame}
+        onDeleteMobileGame={onDeleteMobileGame}
+        onAddGameIcon={onAddGameIcon}
+        onEditGameIcon={onEditGameIcon}
+        onDeleteGameIcon={onDeleteGameIcon}
+        isStandalone={false}
       />
     </>
   );

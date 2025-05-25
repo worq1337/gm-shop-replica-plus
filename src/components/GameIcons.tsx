@@ -1,84 +1,13 @@
 
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { GameIcon } from "@/types";
 
-interface GameIcon {
-  id: string;
-  name: string;
-  icon: string;
-  image?: string;
+interface GameIconsProps {
+  gameIcons: GameIcon[];
 }
 
-const gameIcons: GameIcon[] = [
-  {
-    id: "roblox",
-    name: "Roblox", 
-    icon: "🎮",
-    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=100&h=100&fit=crop"
-  },
-  {
-    id: "fortnite",
-    name: "Fortnite",
-    icon: "🔫", 
-    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=100&h=100&fit=crop"
-  },
-  {
-    id: "starcraft",
-    name: "StarCraft",
-    icon: "⭐",
-    image: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=100&h=100&fit=crop"
-  },
-  {
-    id: "genshin",
-    name: "Genshin Impact",
-    icon: "🗡️",
-    image: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=100&h=100&fit=crop"
-  },
-  {
-    id: "minecraft",
-    name: "Minecraft",
-    icon: "⛏️",
-    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop"
-  },
-  {
-    id: "cs",
-    name: "Counter-Strike",
-    icon: "🎯",
-    image: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=100&h=100&fit=crop"
-  },
-  {
-    id: "arena",
-    name: "Arena Breakout",
-    icon: "🏟️",
-    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=100&h=100&fit=crop"
-  },
-  {
-    id: "gta",
-    name: "GTA 5 Online",
-    icon: "🚗",
-    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=100&h=100&fit=crop"
-  },
-  {
-    id: "hearthstone",
-    name: "Hearthstone",
-    icon: "🃏",
-    image: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=100&h=100&fit=crop"
-  },
-  {
-    id: "exile",
-    name: "Path of Exile",
-    icon: "⚔️",
-    image: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=100&h=100&fit=crop"
-  },
-  {
-    id: "valorant",
-    name: "Valorant",
-    icon: "🏹",
-    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop"
-  }
-];
-
-export function GameIcons() {
+export function GameIcons({ gameIcons }: GameIconsProps) {
   const [showAll, setShowAll] = useState(false);
   const visibleIcons = showAll ? gameIcons : gameIcons.slice(0, 10);
 
@@ -109,15 +38,15 @@ export function GameIcons() {
               {game.image ? (
                 <img
                   src={game.image}
-                  alt={game.name}
+                  alt={game.title}
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-lg sm:text-xl">{game.icon}</span>
+                <span className="text-lg sm:text-xl">🎮</span>
               )}
             </div>
             <span className="text-xs text-center leading-tight max-w-full truncate">
-              {game.name}
+              {game.title}
             </span>
           </div>
         ))}

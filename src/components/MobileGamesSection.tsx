@@ -1,53 +1,12 @@
 
 import { ChevronRight } from "lucide-react";
+import { MobileGame } from "@/types";
 
-interface MobileGame {
-  id: string;
-  name: string;
-  icon: string;
-  image?: string;
+interface MobileGamesSectionProps {
+  mobileGames: MobileGame[];
 }
 
-const mobileGames: MobileGame[] = [
-  {
-    id: "pubg-mobile",
-    name: "PUBG Mobile",
-    icon: "🎮",
-    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=100&h=100&fit=crop"
-  },
-  {
-    id: "free-fire",
-    name: "Free Fire",
-    icon: "🔥",
-    image: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=100&h=100&fit=crop"
-  },
-  {
-    id: "cod-mobile",
-    name: "Call of Duty Mobile",
-    icon: "🔫",
-    image: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=100&h=100&fit=crop"
-  },
-  {
-    id: "mobile-legends",
-    name: "Mobile Legends",
-    icon: "⚔️",
-    image: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=100&h=100&fit=crop"
-  },
-  {
-    id: "clash-royale",
-    name: "Clash Royale",
-    icon: "👑",
-    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop"
-  },
-  {
-    id: "brawl-stars",
-    name: "Brawl Stars", 
-    icon: "⭐",
-    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=100&h=100&fit=crop"
-  }
-];
-
-export function MobileGamesSection() {
+export function MobileGamesSection({ mobileGames }: MobileGamesSectionProps) {
   return (
     <div className="mb-6 sm:mb-8">
       <div className="flex items-center justify-between mb-4">
@@ -72,15 +31,15 @@ export function MobileGamesSection() {
               {game.image ? (
                 <img
                   src={game.image}
-                  alt={game.name}
+                  alt={game.title}
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-lg sm:text-xl text-white">{game.icon}</span>
+                <span className="text-lg sm:text-xl text-white">📱</span>
               )}
             </div>
             <span className="text-xs text-center leading-tight max-w-full truncate">
-              {game.name}
+              {game.title}
             </span>
           </div>
         ))}
