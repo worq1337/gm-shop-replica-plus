@@ -3,8 +3,30 @@ import { Search, User, ShoppingCart, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "./ThemeToggle";
+import { AdminPanel } from "./AdminPanel";
+import { GameItem, Category } from "@/types";
 
-export function Header() {
+interface HeaderProps {
+  items: GameItem[];
+  categories: Category[];
+  onAddItem: (item: Omit<GameItem, 'id'>) => void;
+  onEditItem: (id: string, item: Partial<GameItem>) => void;
+  onDeleteItem: (id: string) => void;
+  onAddCategory: (category: Omit<Category, 'id'>) => void;
+  onEditCategory: (id: string, category: Partial<Category>) => void;
+  onDeleteCategory: (id: string) => void;
+}
+
+export function Header({
+  items,
+  categories,
+  onAddItem,
+  onEditItem,
+  onDeleteItem,
+  onAddCategory,
+  onEditCategory,
+  onDeleteCategory
+}: HeaderProps) {
   return (
     <header className="gradient-bg text-white shadow-lg">
       <div className="container mx-auto px-4">
@@ -31,6 +53,16 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center space-x-3">
+            <AdminPanel
+              items={items}
+              categories={categories}
+              onAddItem={onAddItem}
+              onEditItem={onEditItem}
+              onDeleteItem={onDeleteItem}
+              onAddCategory={onAddCategory}
+              onEditCategory={onEditCategory}
+              onDeleteCategory={onDeleteCategory}
+            />
             <ThemeToggle />
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
               <Bell className="w-5 h-5" />
@@ -47,26 +79,20 @@ export function Header() {
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - убрал категории отсюда, они теперь будут в основном контенте */}
         <nav className="pb-4">
           <div className="flex space-x-6">
             <Button variant="ghost" className="text-white hover:bg-white/20">
-              Все товары
+              Главная
             </Button>
             <Button variant="ghost" className="text-white hover:bg-white/20">
-              CSGO
+              Популярные
             </Button>
             <Button variant="ghost" className="text-white hover:bg-white/20">
-              Dota 2
+              Новинки
             </Button>
             <Button variant="ghost" className="text-white hover:bg-white/20">
-              Rust
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20">
-              Steam
-            </Button>
-            <Button variant="ghost" className="text-white hover:bg-white/20">
-              TF2
+              Акции
             </Button>
           </div>
         </nav>
