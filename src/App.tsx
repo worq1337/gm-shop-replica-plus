@@ -16,43 +16,57 @@ const initialCategories: Category[] = [
     id: "mobile-games",
     name: "Мобильные игры",
     icon: "📱",
-    description: "Игры и товары для мобильных устройств"
+    description: "Игры и товары для мобильных устройств",
+    reviewCount: 15,
+    telegramGroupLink: "https://t.me/gmshop_mobile"
   },
   {
     id: "csgo",
     name: "CS:GO",
     icon: "🔫",
-    description: "Скины и товары для Counter-Strike"
+    description: "Скины и товары для Counter-Strike",
+    reviewCount: 234,
+    telegramGroupLink: "https://t.me/gmshop_csgo"
   },
   {
     id: "dota2",
     name: "Dota 2",
     icon: "⚔️",
-    description: "Предметы для Dota 2"
+    description: "Предметы для Dota 2",
+    reviewCount: 89,
+    telegramGroupLink: "https://t.me/gmshop_dota"
   },
   {
     id: "pubg-mobile",
     name: "PUBG Mobile",
     icon: "🎮",
-    description: "Скины и UC для PUBG Mobile"
+    description: "Скины и UC для PUBG Mobile",
+    reviewCount: 156,
+    telegramGroupLink: "https://t.me/gmshop_pubg"
   },
   {
     id: "free-fire",
     name: "Free Fire",
     icon: "🔥",
-    description: "Алмазы и скины для Free Fire"
+    description: "Алмазы и скины для Free Fire",
+    reviewCount: 78,
+    telegramGroupLink: "https://t.me/gmshop_ff"
   },
   {
     id: "steam",
     name: "Steam",
     icon: "🎯",
-    description: "Steam кошельки и игры"
+    description: "Steam кошельки и игры",
+    reviewCount: 456,
+    telegramGroupLink: "https://t.me/gmshop_steam"
   },
   {
     id: "accounts",
     name: "Аккаунты",
     icon: "👤",
-    description: "Игровые аккаунты"
+    description: "Игровые аккаунты",
+    reviewCount: 123,
+    telegramGroupLink: "https://t.me/gmshop_accounts"
   }
 ];
 

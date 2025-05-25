@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings, Plus, Edit, Trash2, Upload, X, Save } from "lucide-react";
-import { GameItem, Category, MobileGame, GameIcon } from "@/types";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Settings, Plus, Edit, Trash2, Upload, X, Save, Package, Bell, MessageSquare, Eye } from "lucide-react";
+import { GameItem, Category, MobileGame, GameIcon, Order, ReviewSettings } from "@/types";
 
 interface AdminPanelProps {
   items: GameItem[];
@@ -26,6 +27,7 @@ interface AdminPanelProps {
   onEditGameIcon: (id: string, icon: Partial<GameIcon>) => void;
   onDeleteGameIcon: (id: string) => void;
   isStandalone?: boolean;
+  onClose?: () => void;
 }
 
 function AdminPanelContent({
@@ -45,12 +47,54 @@ function AdminPanelContent({
   onAddGameIcon,
   onEditGameIcon,
   onDeleteGameIcon
-}: Omit<AdminPanelProps, 'isStandalone'>) {
-  const [activeTab, setActiveTab] = useState<"items" | "categories" | "mobile-games" | "game-icons" | "settings">("items");
+}: Omit<AdminPanelProps, 'isStandalone' | 'onClose'>) {
+  const [activeTab, setActiveTab] = useState<"categories" | "products" | "orders" | "mobile-games" | "game-icons" | "reviews" | "settings">("categories");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [editingItem, setEditingItem] = useState<GameItem | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editingMobileGame, setEditingMobileGame] = useState<MobileGame | null>(null);
   const [editingGameIcon, setEditingGameIcon] = useState<GameIcon | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+
+  // Mock orders data
+  const [orders] = useState<Order[]>([
+    {
+      id: "1",
+      customerName: "Иван Петров",
+      customerEmail: "ivan@example.com",
+      customerTelegram: "@ivan_petrov",
+      itemId: "1",
+      itemTitle: "AK-47 | Redline",
+      itemPrice: "1,250",
+      quantity: 1,
+      totalAmount: "1,250",
+      status: "pending",
+      orderDate: "2024-01-15T10:30:00Z",
+      customerMessage: "Срочно нужен скин для турнира",
+      category: "csgo"
+    },
+    {
+      id: "2",
+      customerName: "Анна Сидорова",
+      customerEmail: "anna@example.com",
+      itemId: "2",
+      itemTitle: "PUBG Mobile UC 1800",
+      itemPrice: "1,200",
+      quantity: 1,
+      totalAmount: "1,200",
+      status: "completed",
+      orderDate: "2024-01-14T15:20:00Z",
+      completedDate: "2024-01-14T16:00:00Z",
+      completedPhoto: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=300&fit=crop",
+      category: "pubg-mobile"
+    }
+  ]);
+
+  const [reviewSettings, setReviewSettings] = useState<ReviewSettings>({
+    telegramGroupLink: "https://t.me/gmshop_reviews",
+    autoReviewCount: 5,
+    reviewMessage: "Спасибо за покупку! Оставьте отзыв в нашей группе Telegram"
+  });
 
   const [newItem, setNewItem] = useState({
     title: "",
@@ -60,7 +104,7 @@ function AdminPanelContent({
     seller: "",
     rating: 5,
     reviews: 0,
-    category: "",
+    category: selectedCategory,
     description: "",
     icon: "",
     discount: ""
@@ -69,7 +113,9 @@ function AdminPanelContent({
   const [newCategory, setNewCategory] = useState({
     name: "",
     icon: "",
-    description: ""
+    description: "",
+    reviewCount: 0,
+    telegramGroupLink: ""
   });
 
   const [newMobileGame, setNewMobileGame] = useState({
@@ -86,19 +132,9 @@ function AdminPanelContent({
     category: ""
   });
 
-  const [siteSettings, setSiteSettings] = useState({
-    siteName: "FunPay",
-    siteDescription: "Маркетплейс игровых товаров",
-    contactEmail: "support@funpay.ru",
-    telegramBot: "@funpay_bot",
-    currency: "₽",
-    commissionRate: "5",
-    minPrice: "10",
-    maxPrice: "100000"
-  });
-
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [completedOrderPhoto, setCompletedOrderPhoto] = useState<string>("");
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -128,110 +164,39 @@ function AdminPanelContent({
     }
   };
 
-  const handleAddItem = () => {
-    onAddItem({
-      ...newItem,
-      isOnline: true
-    });
-    setNewItem({
-      title: "",
-      price: "",
-      originalPrice: "",
-      image: "",
-      seller: "",
-      rating: 5,
-      reviews: 0,
-      category: "",
-      description: "",
-      icon: "",
-      discount: ""
-    });
-    clearImage();
-  };
-
-  const handleSaveItem = () => {
-    if (editingItem) {
-      onEditItem(editingItem.id, editingItem);
-      setEditingItem(null);
-      clearImage();
+  const handleCompleteOrder = (orderId: string) => {
+    if (completedOrderPhoto) {
+      console.log(`Order ${orderId} completed with photo:`, completedOrderPhoto);
+      // Here you would update the order status
     }
   };
 
-  const handleAddCategory = () => {
-    onAddCategory(newCategory);
-    setNewCategory({
-      name: "",
-      icon: "",
-      description: ""
-    });
-  };
-
-  const handleSaveCategory = () => {
-    if (editingCategory) {
-      onEditCategory(editingCategory.id, editingCategory);
-      setEditingCategory(null);
-    }
-  };
-
-  const handleAddMobileGame = () => {
-    onAddMobileGame(newMobileGame);
-    setNewMobileGame({
-      title: "",
-      image: "",
-      description: "",
-      isPopular: false
-    });
-    clearImage();
-  };
-
-  const handleSaveMobileGame = () => {
-    if (editingMobileGame) {
-      onEditMobileGame(editingMobileGame.id, editingMobileGame);
-      setEditingMobileGame(null);
-      clearImage();
-    }
-  };
-
-  const handleAddGameIcon = () => {
-    onAddGameIcon(newGameIcon);
-    setNewGameIcon({
-      title: "",
-      image: "",
-      description: "",
-      category: ""
-    });
-    clearImage();
-  };
-
-  const handleSaveGameIcon = () => {
-    if (editingGameIcon) {
-      onEditGameIcon(editingGameIcon.id, editingGameIcon);
-      setEditingGameIcon(null);
-      clearImage();
-    }
-  };
-
-  const handleSaveSettings = () => {
-    localStorage.setItem('siteSettings', JSON.stringify(siteSettings));
-    console.log('Настройки сохранены:', siteSettings);
-  };
+  const filteredItems = selectedCategory ? items.filter(item => item.category === selectedCategory) : items;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap space-x-2 mb-6">
-        <Button
-          variant={activeTab === "items" ? "default" : "outline"}
-          onClick={() => setActiveTab("items")}
-          size="sm"
-        >
-          Товары
-        </Button>
+      <div className="flex flex-wrap gap-2 mb-6">
         <Button
           variant={activeTab === "categories" ? "default" : "outline"}
           onClick={() => setActiveTab("categories")}
           size="sm"
         >
           Категории
+        </Button>
+        <Button
+          variant={activeTab === "products" ? "default" : "outline"}
+          onClick={() => setActiveTab("products")}
+          size="sm"
+        >
+          Товары
+        </Button>
+        <Button
+          variant={activeTab === "orders" ? "default" : "outline"}
+          onClick={() => setActiveTab("orders")}
+          size="sm"
+        >
+          <Bell className="w-4 h-4 mr-1" />
+          Заказы ({orders.filter(o => o.status === 'pending').length})
         </Button>
         <Button
           variant={activeTab === "mobile-games" ? "default" : "outline"}
@@ -248,6 +213,13 @@ function AdminPanelContent({
           Игровые иконки
         </Button>
         <Button
+          variant={activeTab === "reviews" ? "default" : "outline"}
+          onClick={() => setActiveTab("reviews")}
+          size="sm"
+        >
+          Отзывы
+        </Button>
+        <Button
           variant={activeTab === "settings" ? "default" : "outline"}
           onClick={() => setActiveTab("settings")}
           size="sm"
@@ -256,11 +228,174 @@ function AdminPanelContent({
         </Button>
       </div>
 
-      {activeTab === "items" && (
+      {activeTab === "categories" && (
         <div className="space-y-6">
-          {!editingItem ? (
+          {!editingCategory ? (
             <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-              <h3 className="col-span-2 font-semibold mb-4">Добавить товар</h3>
+              <h3 className="col-span-2 font-semibold mb-4">Добавить категорию</h3>
+              
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={newCategory.name}
+                  onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                  placeholder="Название категории"
+                />
+              </div>
+
+              <div>
+                <Label>Иконка (emoji)</Label>
+                <Input
+                  value={newCategory.icon}
+                  onChange={(e) => setNewCategory({...newCategory, icon: e.target.value})}
+                  placeholder="🎮"
+                />
+              </div>
+
+              <div>
+                <Label>Ссылка на Telegram группу для отзывов</Label>
+                <Input
+                  value={newCategory.telegramGroupLink}
+                  onChange={(e) => setNewCategory({...newCategory, telegramGroupLink: e.target.value})}
+                  placeholder="https://t.me/your_group"
+                />
+              </div>
+
+              <div>
+                <Label>Количество отзывов</Label>
+                <Input
+                  type="number"
+                  value={newCategory.reviewCount}
+                  onChange={(e) => setNewCategory({...newCategory, reviewCount: parseInt(e.target.value) || 0})}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={newCategory.description}
+                  onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
+                  placeholder="Описание категории"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Button onClick={() => onAddCategory(newCategory)} className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Добавить категорию
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-green-50">
+              <h3 className="col-span-2 font-semibold mb-4">Редактировать категорию</h3>
+              
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={editingCategory.name}
+                  onChange={(e) => setEditingCategory({...editingCategory, name: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <Label>Иконка (emoji)</Label>
+                <Input
+                  value={editingCategory.icon}
+                  onChange={(e) => setEditingCategory({...editingCategory, icon: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <Label>Ссылка на Telegram группу</Label>
+                <Input
+                  value={editingCategory.telegramGroupLink || ""}
+                  onChange={(e) => setEditingCategory({...editingCategory, telegramGroupLink: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <Label>Количество отзывов</Label>
+                <Input
+                  type="number"
+                  value={editingCategory.reviewCount || 0}
+                  onChange={(e) => setEditingCategory({...editingCategory, reviewCount: parseInt(e.target.value) || 0})}
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={editingCategory.description}
+                  onChange={(e) => setEditingCategory({...editingCategory, description: e.target.value})}
+                />
+              </div>
+
+              <div className="col-span-2 flex space-x-2">
+                <Button onClick={() => { onEditCategory(editingCategory.id, editingCategory); setEditingCategory(null); }} className="flex-1">
+                  <Save className="w-4 h-4 mr-2" />
+                  Сохранить
+                </Button>
+                <Button variant="outline" onClick={() => setEditingCategory(null)} className="flex-1">
+                  Отменить
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h3 className="font-semibold">Управление категориями</h3>
+            {categories.map((category) => (
+              <div key={category.id} className="flex items-center justify-between p-3 border rounded">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">{category.icon}</span>
+                  <div>
+                    <span className="font-medium">{category.name}</span>
+                    <div className="text-sm text-gray-500">
+                      Товаров: {items.filter(item => item.category === category.id).length}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button size="sm" variant="outline" onClick={() => setEditingCategory(category)}>
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => onDeleteCategory(category.id)}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "products" && (
+        <div className="space-y-6">
+          <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+            <Label>Выберите категорию:</Label>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Все категории" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Все категории</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-gray-500">
+              Товаров: {filteredItems.length}
+            </span>
+          </div>
+
+          {selectedCategory && !editingItem && (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+              <h3 className="col-span-2 font-semibold mb-4">
+                Добавить товар в категорию "{categories.find(c => c.id === selectedCategory)?.name}"
+              </h3>
               
               <div>
                 <Label>Название</Label>
@@ -278,29 +413,6 @@ function AdminPanelContent({
                   onChange={(e) => setNewItem({...newItem, price: e.target.value})}
                   placeholder="1000"
                 />
-              </div>
-
-              <div>
-                <Label>Старая цена (опционально)</Label>
-                <Input
-                  value={newItem.originalPrice}
-                  onChange={(e) => setNewItem({...newItem, originalPrice: e.target.value})}
-                  placeholder="1200"
-                />
-              </div>
-
-              <div>
-                <Label>Категория</Label>
-                <Select value={newItem.category} onValueChange={(value) => setNewItem({...newItem, category: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите категорию" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="col-span-2">
@@ -322,12 +434,7 @@ function AdminPanelContent({
                       <span>Выбрать изображение</span>
                     </Label>
                     {imagePreview && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={clearImage}
-                      >
+                      <Button type="button" variant="outline" size="sm" onClick={clearImage}>
                         <X className="w-4 h-4" />
                       </Button>
                     )}
@@ -335,17 +442,10 @@ function AdminPanelContent({
                   
                   {imagePreview && (
                     <div className="relative w-32 h-24 border rounded overflow-hidden">
-                      <img 
-                        src={imagePreview} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                     </div>
                   )}
                   
-                  <div className="text-sm text-gray-500">
-                    Или введите URL изображения:
-                  </div>
                   <Input
                     value={newItem.image}
                     onChange={(e) => setNewItem({...newItem, image: e.target.value})}
@@ -382,159 +482,35 @@ function AdminPanelContent({
               </div>
 
               <div className="col-span-2">
-                <Button onClick={handleAddItem} className="w-full">
+                <Button onClick={() => {
+                  onAddItem({...newItem, category: selectedCategory});
+                  setNewItem({
+                    title: "", price: "", originalPrice: "", image: "", seller: "", 
+                    rating: 5, reviews: 0, category: selectedCategory, description: "", icon: "", discount: ""
+                  });
+                  clearImage();
+                }} className="w-full">
                   <Plus className="w-4 h-4 mr-2" />
                   Добавить товар
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-blue-50">
-              <h3 className="col-span-2 font-semibold mb-4">Редактировать товар</h3>
-              
-              <div>
-                <Label>Название</Label>
-                <Input
-                  value={editingItem.title}
-                  onChange={(e) => setEditingItem({...editingItem, title: e.target.value})}
-                  placeholder="Название товара"
-                />
-              </div>
-
-              <div>
-                <Label>Цена</Label>
-                <Input
-                  value={editingItem.price}
-                  onChange={(e) => setEditingItem({...editingItem, price: e.target.value})}
-                  placeholder="1000"
-                />
-              </div>
-
-              <div>
-                <Label>Старая цена (опционально)</Label>
-                <Input
-                  value={editingItem.originalPrice || ""}
-                  onChange={(e) => setEditingItem({...editingItem, originalPrice: e.target.value})}
-                  placeholder="1200"
-                />
-              </div>
-
-              <div>
-                <Label>Категория</Label>
-                <Select value={editingItem.category} onValueChange={(value) => setEditingItem({...editingItem, category: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите категорию" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="col-span-2">
-                <Label>Изображение товара</Label>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageSelect}
-                      className="hidden"
-                      id="edit-image-upload"
-                    />
-                    <Label 
-                      htmlFor="edit-image-upload"
-                      className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                    >
-                      <Upload className="w-4 h-4" />
-                      <span>Изменить изображение</span>
-                    </Label>
-                    {(imagePreview || editingItem.image) && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={clearImage}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                  
-                  {(imagePreview || editingItem.image) && (
-                    <div className="relative w-32 h-24 border rounded overflow-hidden">
-                      <img 
-                        src={imagePreview || editingItem.image} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  
-                  <Input
-                    value={editingItem.image}
-                    onChange={(e) => setEditingItem({...editingItem, image: e.target.value})}
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label>Продавец</Label>
-                <Input
-                  value={editingItem.seller}
-                  onChange={(e) => setEditingItem({...editingItem, seller: e.target.value})}
-                  placeholder="Имя продавца"
-                />
-              </div>
-
-              <div>
-                <Label>Иконка (emoji)</Label>
-                <Input
-                  value={editingItem.icon || ""}
-                  onChange={(e) => setEditingItem({...editingItem, icon: e.target.value})}
-                  placeholder="🎮"
-                />
-              </div>
-
-              <div className="col-span-2">
-                <Label>Описание</Label>
-                <Textarea
-                  value={editingItem.description}
-                  onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
-                  placeholder="Описание товара"
-                />
-              </div>
-
-              <div className="col-span-2 flex space-x-2">
-                <Button onClick={handleSaveItem} className="flex-1">
-                  <Save className="w-4 h-4 mr-2" />
-                  Сохранить изменения
-                </Button>
-                <Button variant="outline" onClick={() => setEditingItem(null)} className="flex-1">
-                  Отменить
                 </Button>
               </div>
             </div>
           )}
 
           <div className="space-y-2">
-            <h3 className="font-semibold">Управление товарами</h3>
-            {items.map((item) => (
+            <h3 className="font-semibold">Товары</h3>
+            {filteredItems.map((item) => (
               <div key={item.id} className="flex items-center justify-between p-3 border rounded">
                 <div className="flex items-center space-x-3">
                   {item.image && (
-                    <img 
-                      src={item.image} 
-                      alt={item.title}
-                      className="w-12 h-8 object-cover rounded"
-                    />
+                    <img src={item.image} alt={item.title} className="w-12 h-8 object-cover rounded" />
                   )}
                   <div>
                     <span className="font-medium">{item.title}</span>
                     <span className="ml-2 text-sm text-gray-500">{item.price} ₽</span>
+                    <div className="text-xs text-gray-400">
+                      {categories.find(c => c.id === item.category)?.name}
+                    </div>
                   </div>
                 </div>
                 <div className="flex space-x-2">
@@ -551,104 +527,218 @@ function AdminPanelContent({
         </div>
       )}
 
-      {activeTab === "categories" && (
+      {activeTab === "orders" && (
         <div className="space-y-6">
-          {!editingCategory ? (
-            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-              <h3 className="col-span-2 font-semibold mb-4">Добавить категорию</h3>
-              
-              <div>
-                <Label>Название</Label>
-                <Input
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                  placeholder="Название категории"
-                />
-              </div>
+          <h3 className="font-semibold">Управление заказами</h3>
+          
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Заказ</TableHead>
+                <TableHead>Клиент</TableHead>
+                <TableHead>Товар</TableHead>
+                <TableHead>Сумма</TableHead>
+                <TableHead>Статус</TableHead>
+                <TableHead>Дата</TableHead>
+                <TableHead>Действия</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>#{order.id}</TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{order.customerName}</div>
+                      <div className="text-sm text-gray-500">{order.customerEmail}</div>
+                      {order.customerTelegram && (
+                        <div className="text-sm text-blue-500">{order.customerTelegram}</div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{order.itemTitle}</div>
+                      <div className="text-sm text-gray-500">Категория: {order.category}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{order.totalAmount} ₽</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                      order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {order.status === 'pending' ? 'Ожидает' :
+                       order.status === 'processing' ? 'В работе' :
+                       order.status === 'completed' ? 'Выполнен' : 'Отменен'}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(order.orderDate).toLocaleDateString('ru-RU')}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline" onClick={() => setViewingOrder(order)}>
+                        <Eye className="w-3 h-3" />
+                      </Button>
+                      {order.status === 'pending' && (
+                        <Button size="sm" variant="default">
+                          <Package className="w-3 h-3 mr-1" />
+                          Выполнить
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-              <div>
-                <Label>Иконка (emoji или название lucide)</Label>
-                <Input
-                  value={newCategory.icon}
-                  onChange={(e) => setNewCategory({...newCategory, icon: e.target.value})}
-                  placeholder="🎮 или gamepad"
-                />
-              </div>
+          {viewingOrder && (
+            <Dialog open={!!viewingOrder} onOpenChange={() => setViewingOrder(null)}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Заказ #{viewingOrder.id}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Клиент</Label>
+                      <div className="text-sm">
+                        <div>{viewingOrder.customerName}</div>
+                        <div>{viewingOrder.customerEmail}</div>
+                        {viewingOrder.customerTelegram && <div>{viewingOrder.customerTelegram}</div>}
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Товар</Label>
+                      <div className="text-sm">
+                        <div>{viewingOrder.itemTitle}</div>
+                        <div>Цена: {viewingOrder.itemPrice} ₽</div>
+                        <div>Количество: {viewingOrder.quantity}</div>
+                      </div>
+                    </div>
+                  </div>
 
-              <div className="col-span-2">
-                <Label>Описание</Label>
-                <Textarea
-                  value={newCategory.description}
-                  onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
-                  placeholder="Описание категории"
-                />
-              </div>
+                  {viewingOrder.customerMessage && (
+                    <div>
+                      <Label>Сообщение от клиента</Label>
+                      <div className="p-2 bg-gray-50 rounded text-sm">{viewingOrder.customerMessage}</div>
+                    </div>
+                  )}
 
-              <div className="col-span-2">
-                <Button onClick={handleAddCategory} className="w-full">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Добавить категорию
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-green-50">
-              <h3 className="col-span-2 font-semibold mb-4">Редактировать категорию</h3>
-              
-              <div>
-                <Label>Название</Label>
-                <Input
-                  value={editingCategory.name}
-                  onChange={(e) => setEditingCategory({...editingCategory, name: e.target.value})}
-                  placeholder="Название категории"
-                />
-              </div>
+                  {viewingOrder.status === 'pending' && (
+                    <div className="space-y-4 border-t pt-4">
+                      <Label>Загрузить фото выполненного заказа</Label>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => setCompletedOrderPhoto(e.target?.result as string);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                      {completedOrderPhoto && (
+                        <img src={completedOrderPhoto} alt="Completed order" className="w-32 h-24 object-cover rounded" />
+                      )}
+                      <div className="flex space-x-2">
+                        <Button onClick={() => handleCompleteOrder(viewingOrder.id)} className="flex-1">
+                          <Package className="w-4 h-4 mr-2" />
+                          Заказ выполнен
+                        </Button>
+                        <Button variant="outline" className="flex-1">
+                          Отправить в Telegram
+                        </Button>
+                      </div>
+                    </div>
+                  )}
 
-              <div>
-                <Label>Иконка (emoji или название lucide)</Label>
-                <Input
-                  value={editingCategory.icon}
-                  onChange={(e) => setEditingCategory({...editingCategory, icon: e.target.value})}
-                  placeholder="🎮 или gamepad"
-                />
-              </div>
-
-              <div className="col-span-2">
-                <Label>Описание</Label>
-                <Textarea
-                  value={editingCategory.description}
-                  onChange={(e) => setEditingCategory({...editingCategory, description: e.target.value})}
-                  placeholder="Описание категории"
-                />
-              </div>
-
-              <div className="col-span-2 flex space-x-2">
-                <Button onClick={handleSaveCategory} className="flex-1">
-                  <Save className="w-4 h-4 mr-2" />
-                  Сохранить изменения
-                </Button>
-                <Button variant="outline" onClick={() => setEditingCategory(null)} className="flex-1">
-                  Отменить
-                </Button>
-              </div>
-            </div>
+                  {viewingOrder.completedPhoto && (
+                    <div>
+                      <Label>Фото выполненного заказа</Label>
+                      <img src={viewingOrder.completedPhoto} alt="Completed" className="w-full max-w-md rounded" />
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           )}
+        </div>
+      )}
 
-          <div className="space-y-2">
-            <h3 className="font-semibold">Управление категориями</h3>
+      {activeTab === "reviews" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+            <h3 className="col-span-2 font-semibold mb-4">Настройки отзывов</h3>
+            
+            <div>
+              <Label>Ссылка на Telegram группу</Label>
+              <Input
+                value={reviewSettings.telegramGroupLink}
+                onChange={(e) => setReviewSettings({...reviewSettings, telegramGroupLink: e.target.value})}
+                placeholder="https://t.me/your_group"
+              />
+            </div>
+
+            <div>
+              <Label>Автоматическое количество отзывов</Label>
+              <Input
+                type="number"
+                value={reviewSettings.autoReviewCount}
+                onChange={(e) => setReviewSettings({...reviewSettings, autoReviewCount: parseInt(e.target.value) || 0})}
+              />
+            </div>
+
+            <div className="col-span-2">
+              <Label>Сообщение для отзыва</Label>
+              <Textarea
+                value={reviewSettings.reviewMessage}
+                onChange={(e) => setReviewSettings({...reviewSettings, reviewMessage: e.target.value})}
+                placeholder="Сообщение, которое увидит клиент"
+              />
+            </div>
+
+            <div className="col-span-2">
+              <Button className="w-full">
+                <Save className="w-4 h-4 mr-2" />
+                Сохранить настройки отзывов
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold">Отзывы по категориям</h3>
             {categories.map((category) => (
               <div key={category.id} className="flex items-center justify-between p-3 border rounded">
-                <div>
-                  <span className="font-medium">{category.name}</span>
-                  <span className="ml-2">{category.icon}</span>
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">{category.icon}</span>
+                  <div>
+                    <span className="font-medium">{category.name}</span>
+                    <div className="text-sm text-gray-500">
+                      Отзывов: {category.reviewCount || 0}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button size="sm" variant="outline" onClick={() => setEditingCategory(category)}>
-                    <Edit className="w-3 h-3" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => onDeleteCategory(category.id)}>
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="number"
+                    value={category.reviewCount || 0}
+                    onChange={(e) => onEditCategory(category.id, { reviewCount: parseInt(e.target.value) || 0 })}
+                    className="w-20"
+                  />
+                  {category.telegramGroupLink && (
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={category.telegramGroupLink} target="_blank" rel="noopener noreferrer">
+                        <MessageSquare className="w-3 h-3" />
+                      </a>
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -1191,7 +1281,8 @@ export function AdminPanel({
   onAddGameIcon,
   onEditGameIcon,
   onDeleteGameIcon,
-  isStandalone = false
+  isStandalone = false,
+  onClose
 }: AdminPanelProps) {
   if (isStandalone) {
     return (
@@ -1217,14 +1308,8 @@ export function AdminPanel({
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="text-white border-white/20 hover:bg-white/20">
-          <Settings className="w-4 h-4 mr-2" />
-          Админ панель
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Панель администратора</DialogTitle>
         </DialogHeader>

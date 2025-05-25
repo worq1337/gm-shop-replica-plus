@@ -127,27 +127,28 @@ export function Header({
         onClose={() => setIsAuthModalOpen(false)} 
       />
 
-      <AdminPanel
-        isOpen={isAdminPanelOpen}
-        onClose={() => setIsAdminPanelOpen(false)}
-        items={items}
-        categories={categories}
-        mobileGames={mobileGames}
-        gameIcons={gameIcons}
-        onAddItem={onAddItem}
-        onEditItem={onEditItem}
-        onDeleteItem={onDeleteItem}
-        onAddCategory={onAddCategory}
-        onEditCategory={onEditCategory}
-        onDeleteCategory={onDeleteCategory}
-        onAddMobileGame={onAddMobileGame}
-        onEditMobileGame={onEditMobileGame}
-        onDeleteMobileGame={onDeleteMobileGame}
-        onAddGameIcon={onAddGameIcon}
-        onEditGameIcon={onEditGameIcon}
-        onDeleteGameIcon={onDeleteGameIcon}
-        isStandalone={false}
-      />
+      {isAdminPanelOpen && (
+        <AdminPanel
+          onClose={() => setIsAdminPanelOpen(false)}
+          items={items}
+          categories={categories}
+          mobileGames={mobileGames}
+          gameIcons={gameIcons}
+          onAddItem={onAddItem}
+          onEditItem={onEditItem}
+          onDeleteItem={onDeleteItem}
+          onAddCategory={onAddCategory}
+          onEditCategory={onEditCategory}
+          onDeleteCategory={onDeleteCategory}
+          onAddMobileGame={onAddMobileGame}
+          onEditMobileGame={onEditMobileGame}
+          onDeleteMobileGame={onDeleteMobileGame}
+          onAddGameIcon={onAddGameIcon}
+          onEditGameIcon={onEditGameIcon}
+          onDeleteGameIcon={onDeleteGameIcon}
+          isStandalone={false}
+        />
+      )}
     </>
   );
 }

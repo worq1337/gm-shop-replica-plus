@@ -20,6 +20,8 @@ export interface Category {
   name: string;
   icon: string;
   description: string;
+  reviewCount?: number;
+  telegramGroupLink?: string;
 }
 
 export interface MobileGame {
@@ -36,4 +38,28 @@ export interface GameIcon {
   image: string;
   description: string;
   category?: string;
+}
+
+export interface Order {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerTelegram?: string;
+  itemId: string;
+  itemTitle: string;
+  itemPrice: string;
+  quantity: number;
+  totalAmount: string;
+  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  orderDate: string;
+  completedDate?: string;
+  completedPhoto?: string;
+  customerMessage?: string;
+  category: string;
+}
+
+export interface ReviewSettings {
+  telegramGroupLink: string;
+  autoReviewCount: number;
+  reviewMessage: string;
 }
