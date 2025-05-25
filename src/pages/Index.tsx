@@ -197,32 +197,6 @@ export default function Index() {
         onEditCategory={handleEditCategory}
         onDeleteCategory={handleDeleteCategory}
       />
-      
-      {/* Hero Section */}
-      <section className="gradient-bg text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            Лучшие игровые товары по выгодным ценам
-          </h2>
-          <p className="text-xl opacity-90 mb-8">
-            Безопасные сделки, мгновенная доставка, гарантия качества
-          </p>
-          <div className="flex justify-center space-x-8 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              <span>1000+ довольных покупателей</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-              <span>24/7 поддержка</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-              <span>Мгновенная доставка</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <div className="container mx-auto px-4 py-8">
         {/* Category Filter */}
@@ -295,6 +269,64 @@ export default function Index() {
           )}
         </main>
       </div>
+
+      {/* Footer Section - moved from hero */}
+      <footer className="gradient-bg text-white py-16 mt-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-4">
+            Лучшие игровые товары по выгодным ценам
+          </h2>
+          <p className="text-xl opacity-90 mb-8">
+            Безопасные сделки, мгновенная доставка, гарантия качества
+          </p>
+          <div className="flex justify-center space-x-8 text-sm mb-12">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+              <span>1000+ довольных покупателей</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+              <span>24/7 поддержка</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
+              <span>Мгновенная доставка</span>
+            </div>
+          </div>
+
+          {/* Contact and Copyright Information */}
+          <div className="border-t border-white/20 pt-8">
+            <div className="grid md:grid-cols-3 gap-8 text-center md:text-left">
+              <div>
+                <h3 className="font-semibold mb-4">Техническая поддержка</h3>
+                <p className="text-gray-300">
+                  Email: <a href="mailto:help@gmshop.pw" className="text-blue-300 hover:text-blue-200">help@gmshop.pw</a>
+                </p>
+                <p className="text-gray-300 mt-2">
+                  Telegram: <a href="https://t.me/kulacodmyt" target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200">@kulacodmyt</a>
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-4">О нас</h3>
+                <p className="text-gray-300">
+                  GM Shop - надежный магазин игровых товаров с гарантией качества и быстрой доставкой
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-4">Правовая информация</h3>
+                <p className="text-gray-300">
+                  © {new Date().getFullYear()} GM Shop. Все права защищены.
+                </p>
+                <p className="text-gray-300 text-sm mt-2">
+                  Защита персональных данных
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
