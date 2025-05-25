@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings, Plus, Edit, Trash2 } from "lucide-react";
+import { Settings, Plus, Edit, Trash2, Upload, X } from "lucide-react";
 import { GameItem, Category } from "@/types";
 
 interface AdminPanelProps {
@@ -54,6 +53,29 @@ export function AdminPanel({
     description: ""
   });
 
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setImagePreview(result);
+        setNewItem({...newItem, image: result});
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    setSelectedImage(null);
+    setImagePreview("");
+    setNewItem({...newItem, image: ""});
+  };
+
   const handleAddItem = () => {
     onAddItem({
       ...newItem,
@@ -72,6 +94,7 @@ export function AdminPanel({
       icon: "",
       discount: ""
     });
+    clearImage();
   };
 
   const handleAddCategory = () => {
@@ -157,13 +180,55 @@ export function AdminPanel({
                 </Select>
               </div>
 
-              <div>
-                <Label>Изображение URL</Label>
-                <Input
-                  value={newItem.image}
-                  onChange={(e) => setNewItem({...newItem, image: e.target.value})}
-                  placeholder="https://..."
-                />
+              <div className="col-span-2">
+                <Label>Изображение товара</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <Label 
+                      htmlFor="image-upload"
+                      className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Выбрать изображение</span>
+                    </Label>
+                    {imagePreview && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={clearImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {imagePreview && (
+                    <div className="relative w-32 h-24 border rounded overflow-hidden">
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="text-sm text-gray-500">
+                    Или введите URL изображения:
+                  </div>
+                  <Input
+                    value={newItem.image}
+                    onChange={(e) => setNewItem({...newItem, image: e.target.value})}
+                    placeholder="https://..."
+                  />
+                </div>
               </div>
 
               <div>
@@ -172,6 +237,15 @@ export function AdminPanel({
                   value={newItem.seller}
                   onChange={(e) => setNewItem({...newItem, seller: e.target.value})}
                   placeholder="Имя продавца"
+                />
+              </div>
+
+              <div>
+                <Label>Иконка (emoji)</Label>
+                <Input
+                  value={newItem.icon}
+                  onChange={(e) => setNewItem({...newItem, icon: e.target.value})}
+                  placeholder="🎮"
                 />
               </div>
 
@@ -196,9 +270,18 @@ export function AdminPanel({
               <h3 className="font-semibold">Управление товарами</h3>
               {items.map((item) => (
                 <div key={item.id} className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <span className="font-medium">{item.title}</span>
-                    <span className="ml-2 text-sm text-gray-500">{item.price} ₽</span>
+                  <div className="flex items-center space-x-3">
+                    {item.image && (
+                      <img 
+                        src={item.image} 
+                        alt={item.title}
+                        className="w-12 h-8 object-cover rounded"
+                      />
+                    )}
+                    <div>
+                      <span className="font-medium">{item.title}</span>
+                      <span className="ml-2 text-sm text-gray-500">{item.price} ₽</span>
+                    </div>
                   </div>
                   <div className="flex space-x-2">
                     <Button size="sm" variant="outline" onClick={() => setEditingItem(item)}>
