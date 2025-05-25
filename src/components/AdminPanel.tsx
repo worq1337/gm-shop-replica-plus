@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,9 +17,10 @@ interface AdminPanelProps {
   onAddCategory: (category: Omit<Category, 'id'>) => void;
   onEditCategory: (id: string, category: Partial<Category>) => void;
   onDeleteCategory: (id: string) => void;
+  isStandalone?: boolean;
 }
 
-export function AdminPanel({
+function AdminPanelContent({
   items,
   categories,
   onAddItem,
@@ -29,7 +29,7 @@ export function AdminPanel({
   onAddCategory,
   onEditCategory,
   onDeleteCategory
-}: AdminPanelProps) {
+}: Omit<AdminPanelProps, 'isStandalone'>) {
   const [activeTab, setActiveTab] = useState<"items" | "categories" | "settings">("items");
   const [editingItem, setEditingItem] = useState<GameItem | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -147,6 +147,551 @@ export function AdminPanel({
   };
 
   return (
+    <div className="space-y-6">
+      <div className="flex space-x-4 mb-6">
+        <Button
+          variant={activeTab === "items" ? "default" : "outline"}
+          onClick={() => setActiveTab("items")}
+        >
+          Товары
+        </Button>
+        <Button
+          variant={activeTab === "categories" ? "default" : "outline"}
+          onClick={() => setActiveTab("categories")}
+        >
+          Категории
+        </Button>
+        <Button
+          variant={activeTab === "settings" ? "default" : "outline"}
+          onClick={() => setActiveTab("settings")}
+        >
+          Настройки сайта
+        </Button>
+      </div>
+
+      {activeTab === "items" && (
+        <div className="space-y-6">
+          {!editingItem ? (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+              <h3 className="col-span-2 font-semibold mb-4">Добавить товар</h3>
+              
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={newItem.title}
+                  onChange={(e) => setNewItem({...newItem, title: e.target.value})}
+                  placeholder="Название товара"
+                />
+              </div>
+
+              <div>
+                <Label>Цена</Label>
+                <Input
+                  value={newItem.price}
+                  onChange={(e) => setNewItem({...newItem, price: e.target.value})}
+                  placeholder="1000"
+                />
+              </div>
+
+              <div>
+                <Label>Старая цена (опционально)</Label>
+                <Input
+                  value={newItem.originalPrice}
+                  onChange={(e) => setNewItem({...newItem, originalPrice: e.target.value})}
+                  placeholder="1200"
+                />
+              </div>
+
+              <div>
+                <Label>Категория</Label>
+                <Select value={newItem.category} onValueChange={(value) => setNewItem({...newItem, category: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите категорию" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Изображение товара</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <Label 
+                      htmlFor="image-upload"
+                      className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Выбрать изображение</span>
+                    </Label>
+                    {imagePreview && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={clearImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {imagePreview && (
+                    <div className="relative w-32 h-24 border rounded overflow-hidden">
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="text-sm text-gray-500">
+                    Или введите URL изображения:
+                  </div>
+                  <Input
+                    value={newItem.image}
+                    onChange={(e) => setNewItem({...newItem, image: e.target.value})}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Продавец</Label>
+                <Input
+                  value={newItem.seller}
+                  onChange={(e) => setNewItem({...newItem, seller: e.target.value})}
+                  placeholder="Имя продавца"
+                />
+              </div>
+
+              <div>
+                <Label>Иконка (emoji)</Label>
+                <Input
+                  value={newItem.icon}
+                  onChange={(e) => setNewItem({...newItem, icon: e.target.value})}
+                  placeholder="🎮"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={newItem.description}
+                  onChange={(e) => setNewItem({...newItem, description: e.target.value})}
+                  placeholder="Описание товара"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Button onClick={handleAddItem} className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Добавить товар
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-blue-50">
+              <h3 className="col-span-2 font-semibold mb-4">Редактировать товар</h3>
+              
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={editingItem.title}
+                  onChange={(e) => setEditingItem({...editingItem, title: e.target.value})}
+                  placeholder="Название товара"
+                />
+              </div>
+
+              <div>
+                <Label>Цена</Label>
+                <Input
+                  value={editingItem.price}
+                  onChange={(e) => setEditingItem({...editingItem, price: e.target.value})}
+                  placeholder="1000"
+                />
+              </div>
+
+              <div>
+                <Label>Старая цена (опционально)</Label>
+                <Input
+                  value={editingItem.originalPrice || ""}
+                  onChange={(e) => setEditingItem({...editingItem, originalPrice: e.target.value})}
+                  placeholder="1200"
+                />
+              </div>
+
+              <div>
+                <Label>Категория</Label>
+                <Select value={editingItem.category} onValueChange={(value) => setEditingItem({...editingItem, category: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите категорию" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-2">
+                <Label>Изображение товара</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="edit-image-upload"
+                    />
+                    <Label 
+                      htmlFor="edit-image-upload"
+                      className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Изменить изображение</span>
+                    </Label>
+                    {(imagePreview || editingItem.image) && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={clearImage}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {(imagePreview || editingItem.image) && (
+                    <div className="relative w-32 h-24 border rounded overflow-hidden">
+                      <img 
+                        src={imagePreview || editingItem.image} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <Input
+                    value={editingItem.image}
+                    onChange={(e) => setEditingItem({...editingItem, image: e.target.value})}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Продавец</Label>
+                <Input
+                  value={editingItem.seller}
+                  onChange={(e) => setEditingItem({...editingItem, seller: e.target.value})}
+                  placeholder="Имя продавца"
+                />
+              </div>
+
+              <div>
+                <Label>Иконка (emoji)</Label>
+                <Input
+                  value={editingItem.icon || ""}
+                  onChange={(e) => setEditingItem({...editingItem, icon: e.target.value})}
+                  placeholder="🎮"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={editingItem.description}
+                  onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
+                  placeholder="Описание товара"
+                />
+              </div>
+
+              <div className="col-span-2 flex space-x-2">
+                <Button onClick={handleSaveItem} className="flex-1">
+                  <Save className="w-4 h-4 mr-2" />
+                  Сохранить изменения
+                </Button>
+                <Button variant="outline" onClick={() => setEditingItem(null)} className="flex-1">
+                  Отменить
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h3 className="font-semibold">Управление товарами</h3>
+            {items.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-3 border rounded">
+                <div className="flex items-center space-x-3">
+                  {item.image && (
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-12 h-8 object-cover rounded"
+                    />
+                  )}
+                  <div>
+                    <span className="font-medium">{item.title}</span>
+                    <span className="ml-2 text-sm text-gray-500">{item.price} ₽</span>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button size="sm" variant="outline" onClick={() => setEditingItem(item)}>
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => onDeleteItem(item.id)}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "categories" && (
+        <div className="space-y-6">
+          {!editingCategory ? (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+              <h3 className="col-span-2 font-semibold mb-4">Добавить категорию</h3>
+              
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={newCategory.name}
+                  onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                  placeholder="Название категории"
+                />
+              </div>
+
+              <div>
+                <Label>Иконка (emoji или название lucide)</Label>
+                <Input
+                  value={newCategory.icon}
+                  onChange={(e) => setNewCategory({...newCategory, icon: e.target.value})}
+                  placeholder="🎮 или gamepad"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={newCategory.description}
+                  onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
+                  placeholder="Описание категории"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Button onClick={handleAddCategory} className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Добавить категорию
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-green-50">
+              <h3 className="col-span-2 font-semibold mb-4">Редактировать категорию</h3>
+              
+              <div>
+                <Label>Название</Label>
+                <Input
+                  value={editingCategory.name}
+                  onChange={(e) => setEditingCategory({...editingCategory, name: e.target.value})}
+                  placeholder="Название категории"
+                />
+              </div>
+
+              <div>
+                <Label>Иконка (emoji или название lucide)</Label>
+                <Input
+                  value={editingCategory.icon}
+                  onChange={(e) => setEditingCategory({...editingCategory, icon: e.target.value})}
+                  placeholder="🎮 или gamepad"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label>Описание</Label>
+                <Textarea
+                  value={editingCategory.description}
+                  onChange={(e) => setEditingCategory({...editingCategory, description: e.target.value})}
+                  placeholder="Описание категории"
+                />
+              </div>
+
+              <div className="col-span-2 flex space-x-2">
+                <Button onClick={handleSaveCategory} className="flex-1">
+                  <Save className="w-4 h-4 mr-2" />
+                  Сохранить изменения
+                </Button>
+                <Button variant="outline" onClick={() => setEditingCategory(null)} className="flex-1">
+                  Отменить
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h3 className="font-semibold">Управление категориями</h3>
+            {categories.map((category) => (
+              <div key={category.id} className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <span className="font-medium">{category.name}</span>
+                  <span className="ml-2">{category.icon}</span>
+                </div>
+                <div className="flex space-x-2">
+                  <Button size="sm" variant="outline" onClick={() => setEditingCategory(category)}>
+                    <Edit className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => onDeleteCategory(category.id)}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "settings" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
+            <h3 className="col-span-2 font-semibold mb-4">Настройки сайта</h3>
+            
+            <div>
+              <Label>Название сайта</Label>
+              <Input
+                value={siteSettings.siteName}
+                onChange={(e) => setSiteSettings({...siteSettings, siteName: e.target.value})}
+                placeholder="FunPay"
+              />
+            </div>
+
+            <div>
+              <Label>Email поддержки</Label>
+              <Input
+                value={siteSettings.contactEmail}
+                onChange={(e) => setSiteSettings({...siteSettings, contactEmail: e.target.value})}
+                placeholder="support@funpay.ru"
+              />
+            </div>
+
+            <div className="col-span-2">
+              <Label>Описание сайта</Label>
+              <Textarea
+                value={siteSettings.siteDescription}
+                onChange={(e) => setSiteSettings({...siteSettings, siteDescription: e.target.value})}
+                placeholder="Описание вашего сайта"
+              />
+            </div>
+
+            <div>
+              <Label>Телеграм бот</Label>
+              <Input
+                value={siteSettings.telegramBot}
+                onChange={(e) => setSiteSettings({...siteSettings, telegramBot: e.target.value})}
+                placeholder="@funpay_bot"
+              />
+            </div>
+
+            <div>
+              <Label>Валюта</Label>
+              <Select value={siteSettings.currency} onValueChange={(value) => setSiteSettings({...siteSettings, currency: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="₽">₽ (Рубль)</SelectItem>
+                  <SelectItem value="$">$ (Доллар)</SelectItem>
+                  <SelectItem value="€">€ (Евро)</SelectItem>
+                  <SelectItem value="₴">₴ (Гривна)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Комиссия (%)</Label>
+              <Input
+                value={siteSettings.commissionRate}
+                onChange={(e) => setSiteSettings({...siteSettings, commissionRate: e.target.value})}
+                placeholder="5"
+              />
+            </div>
+
+            <div>
+              <Label>Минимальная цена</Label>
+              <Input
+                value={siteSettings.minPrice}
+                onChange={(e) => setSiteSettings({...siteSettings, minPrice: e.target.value})}
+                placeholder="10"
+              />
+            </div>
+
+            <div>
+              <Label>Максимальная цена</Label>
+              <Input
+                value={siteSettings.maxPrice}
+                onChange={(e) => setSiteSettings({...siteSettings, maxPrice: e.target.value})}
+                placeholder="100000"
+              />
+            </div>
+
+            <div className="col-span-2">
+              <Button onClick={handleSaveSettings} className="w-full">
+                <Save className="w-4 h-4 mr-2" />
+                Сохранить настройки
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function AdminPanel({
+  items,
+  categories,
+  onAddItem,
+  onEditItem,
+  onDeleteItem,
+  onAddCategory,
+  onEditCategory,
+  onDeleteCategory,
+  isStandalone = false
+}: AdminPanelProps) {
+  if (isStandalone) {
+    return (
+      <AdminPanelContent
+        items={items}
+        categories={categories}
+        onAddItem={onAddItem}
+        onEditItem={onEditItem}
+        onDeleteItem={onDeleteItem}
+        onAddCategory={onAddCategory}
+        onEditCategory={onEditCategory}
+        onDeleteCategory={onDeleteCategory}
+      />
+    );
+  }
+
+  return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" className="text-white border-white/20 hover:bg-white/20">
@@ -158,520 +703,16 @@ export function AdminPanel({
         <DialogHeader>
           <DialogTitle>Панель администратора</DialogTitle>
         </DialogHeader>
-
-        <div className="flex space-x-4 mb-6">
-          <Button
-            variant={activeTab === "items" ? "default" : "outline"}
-            onClick={() => setActiveTab("items")}
-          >
-            Товары
-          </Button>
-          <Button
-            variant={activeTab === "categories" ? "default" : "outline"}
-            onClick={() => setActiveTab("categories")}
-          >
-            Категории
-          </Button>
-          <Button
-            variant={activeTab === "settings" ? "default" : "outline"}
-            onClick={() => setActiveTab("settings")}
-          >
-            Настройки сайта
-          </Button>
-        </div>
-
-        {activeTab === "items" && (
-          <div className="space-y-6">
-            {!editingItem ? (
-              <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-                <h3 className="col-span-2 font-semibold mb-4">Добавить товар</h3>
-                
-                <div>
-                  <Label>Название</Label>
-                  <Input
-                    value={newItem.title}
-                    onChange={(e) => setNewItem({...newItem, title: e.target.value})}
-                    placeholder="Название товара"
-                  />
-                </div>
-
-                <div>
-                  <Label>Цена</Label>
-                  <Input
-                    value={newItem.price}
-                    onChange={(e) => setNewItem({...newItem, price: e.target.value})}
-                    placeholder="1000"
-                  />
-                </div>
-
-                <div>
-                  <Label>Старая цена (опционально)</Label>
-                  <Input
-                    value={newItem.originalPrice}
-                    onChange={(e) => setNewItem({...newItem, originalPrice: e.target.value})}
-                    placeholder="1200"
-                  />
-                </div>
-
-                <div>
-                  <Label>Категория</Label>
-                  <Select value={newItem.category} onValueChange={(value) => setNewItem({...newItem, category: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Выберите категорию" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="col-span-2">
-                  <Label>Изображение товара</Label>
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageSelect}
-                        className="hidden"
-                        id="image-upload"
-                      />
-                      <Label 
-                        htmlFor="image-upload"
-                        className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                      >
-                        <Upload className="w-4 h-4" />
-                        <span>Выбрать изображение</span>
-                      </Label>
-                      {imagePreview && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={clearImage}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                    
-                    {imagePreview && (
-                      <div className="relative w-32 h-24 border rounded overflow-hidden">
-                        <img 
-                          src={imagePreview} 
-                          alt="Preview" 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="text-sm text-gray-500">
-                      Или введите URL изображения:
-                    </div>
-                    <Input
-                      value={newItem.image}
-                      onChange={(e) => setNewItem({...newItem, image: e.target.value})}
-                      placeholder="https://..."
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Продавец</Label>
-                  <Input
-                    value={newItem.seller}
-                    onChange={(e) => setNewItem({...newItem, seller: e.target.value})}
-                    placeholder="Имя продавца"
-                  />
-                </div>
-
-                <div>
-                  <Label>Иконка (emoji)</Label>
-                  <Input
-                    value={newItem.icon}
-                    onChange={(e) => setNewItem({...newItem, icon: e.target.value})}
-                    placeholder="🎮"
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <Label>Описание</Label>
-                  <Textarea
-                    value={newItem.description}
-                    onChange={(e) => setNewItem({...newItem, description: e.target.value})}
-                    placeholder="Описание товара"
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <Button onClick={handleAddItem} className="w-full">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Добавить товар
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-blue-50">
-                <h3 className="col-span-2 font-semibold mb-4">Редактировать товар</h3>
-                
-                <div>
-                  <Label>Название</Label>
-                  <Input
-                    value={editingItem.title}
-                    onChange={(e) => setEditingItem({...editingItem, title: e.target.value})}
-                    placeholder="Название товара"
-                  />
-                </div>
-
-                <div>
-                  <Label>Цена</Label>
-                  <Input
-                    value={editingItem.price}
-                    onChange={(e) => setEditingItem({...editingItem, price: e.target.value})}
-                    placeholder="1000"
-                  />
-                </div>
-
-                <div>
-                  <Label>Старая цена (опционально)</Label>
-                  <Input
-                    value={editingItem.originalPrice || ""}
-                    onChange={(e) => setEditingItem({...editingItem, originalPrice: e.target.value})}
-                    placeholder="1200"
-                  />
-                </div>
-
-                <div>
-                  <Label>Категория</Label>
-                  <Select value={editingItem.category} onValueChange={(value) => setEditingItem({...editingItem, category: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Выберите категорию" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="col-span-2">
-                  <Label>Изображение товара</Label>
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageSelect}
-                        className="hidden"
-                        id="edit-image-upload"
-                      />
-                      <Label 
-                        htmlFor="edit-image-upload"
-                        className="flex items-center space-x-2 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                      >
-                        <Upload className="w-4 h-4" />
-                        <span>Изменить изображение</span>
-                      </Label>
-                      {(imagePreview || editingItem.image) && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={clearImage}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                    
-                    {(imagePreview || editingItem.image) && (
-                      <div className="relative w-32 h-24 border rounded overflow-hidden">
-                        <img 
-                          src={imagePreview || editingItem.image} 
-                          alt="Preview" 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    
-                    <Input
-                      value={editingItem.image}
-                      onChange={(e) => setEditingItem({...editingItem, image: e.target.value})}
-                      placeholder="https://..."
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Продавец</Label>
-                  <Input
-                    value={editingItem.seller}
-                    onChange={(e) => setEditingItem({...editingItem, seller: e.target.value})}
-                    placeholder="Имя продавца"
-                  />
-                </div>
-
-                <div>
-                  <Label>Иконка (emoji)</Label>
-                  <Input
-                    value={editingItem.icon || ""}
-                    onChange={(e) => setEditingItem({...editingItem, icon: e.target.value})}
-                    placeholder="🎮"
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <Label>Описание</Label>
-                  <Textarea
-                    value={editingItem.description}
-                    onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
-                    placeholder="Описание товара"
-                  />
-                </div>
-
-                <div className="col-span-2 flex space-x-2">
-                  <Button onClick={handleSaveItem} className="flex-1">
-                    <Save className="w-4 h-4 mr-2" />
-                    Сохранить изменения
-                  </Button>
-                  <Button variant="outline" onClick={() => setEditingItem(null)} className="flex-1">
-                    Отменить
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <h3 className="font-semibold">Управление товарами</h3>
-              {items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-3 border rounded">
-                  <div className="flex items-center space-x-3">
-                    {item.image && (
-                      <img 
-                        src={item.image} 
-                        alt={item.title}
-                        className="w-12 h-8 object-cover rounded"
-                      />
-                    )}
-                    <div>
-                      <span className="font-medium">{item.title}</span>
-                      <span className="ml-2 text-sm text-gray-500">{item.price} ₽</span>
-                    </div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => setEditingItem(item)}>
-                      <Edit className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => onDeleteItem(item.id)}>
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === "categories" && (
-          <div className="space-y-6">
-            {!editingCategory ? (
-              <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-                <h3 className="col-span-2 font-semibold mb-4">Добавить категорию</h3>
-                
-                <div>
-                  <Label>Название</Label>
-                  <Input
-                    value={newCategory.name}
-                    onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                    placeholder="Название категории"
-                  />
-                </div>
-
-                <div>
-                  <Label>Иконка (emoji или название lucide)</Label>
-                  <Input
-                    value={newCategory.icon}
-                    onChange={(e) => setNewCategory({...newCategory, icon: e.target.value})}
-                    placeholder="🎮 или gamepad"
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <Label>Описание</Label>
-                  <Textarea
-                    value={newCategory.description}
-                    onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
-                    placeholder="Описание категории"
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <Button onClick={handleAddCategory} className="w-full">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Добавить категорию
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-green-50">
-                <h3 className="col-span-2 font-semibold mb-4">Редактировать категорию</h3>
-                
-                <div>
-                  <Label>Название</Label>
-                  <Input
-                    value={editingCategory.name}
-                    onChange={(e) => setEditingCategory({...editingCategory, name: e.target.value})}
-                    placeholder="Название категории"
-                  />
-                </div>
-
-                <div>
-                  <Label>Иконка (emoji или название lucide)</Label>
-                  <Input
-                    value={editingCategory.icon}
-                    onChange={(e) => setEditingCategory({...editingCategory, icon: e.target.value})}
-                    placeholder="🎮 или gamepad"
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <Label>Описание</Label>
-                  <Textarea
-                    value={editingCategory.description}
-                    onChange={(e) => setEditingCategory({...editingCategory, description: e.target.value})}
-                    placeholder="Описание категории"
-                  />
-                </div>
-
-                <div className="col-span-2 flex space-x-2">
-                  <Button onClick={handleSaveCategory} className="flex-1">
-                    <Save className="w-4 h-4 mr-2" />
-                    Сохранить изменения
-                  </Button>
-                  <Button variant="outline" onClick={() => setEditingCategory(null)} className="flex-1">
-                    Отменить
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <h3 className="font-semibold">Управление категориями</h3>
-              {categories.map((category) => (
-                <div key={category.id} className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <span className="font-medium">{category.name}</span>
-                    <span className="ml-2">{category.icon}</span>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => setEditingCategory(category)}>
-                      <Edit className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => onDeleteCategory(category.id)}>
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === "settings" && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg">
-              <h3 className="col-span-2 font-semibold mb-4">Настройки сайта</h3>
-              
-              <div>
-                <Label>Название сайта</Label>
-                <Input
-                  value={siteSettings.siteName}
-                  onChange={(e) => setSiteSettings({...siteSettings, siteName: e.target.value})}
-                  placeholder="FunPay"
-                />
-              </div>
-
-              <div>
-                <Label>Email поддержки</Label>
-                <Input
-                  value={siteSettings.contactEmail}
-                  onChange={(e) => setSiteSettings({...siteSettings, contactEmail: e.target.value})}
-                  placeholder="support@funpay.ru"
-                />
-              </div>
-
-              <div className="col-span-2">
-                <Label>Описание сайта</Label>
-                <Textarea
-                  value={siteSettings.siteDescription}
-                  onChange={(e) => setSiteSettings({...siteSettings, siteDescription: e.target.value})}
-                  placeholder="Описание вашего сайта"
-                />
-              </div>
-
-              <div>
-                <Label>Телеграм бот</Label>
-                <Input
-                  value={siteSettings.telegramBot}
-                  onChange={(e) => setSiteSettings({...siteSettings, telegramBot: e.target.value})}
-                  placeholder="@funpay_bot"
-                />
-              </div>
-
-              <div>
-                <Label>Валюта</Label>
-                <Select value={siteSettings.currency} onValueChange={(value) => setSiteSettings({...siteSettings, currency: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="₽">₽ (Рубль)</SelectItem>
-                    <SelectItem value="$">$ (Доллар)</SelectItem>
-                    <SelectItem value="€">€ (Евро)</SelectItem>
-                    <SelectItem value="₴">₴ (Гривна)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Комиссия (%)</Label>
-                <Input
-                  value={siteSettings.commissionRate}
-                  onChange={(e) => setSiteSettings({...siteSettings, commissionRate: e.target.value})}
-                  placeholder="5"
-                />
-              </div>
-
-              <div>
-                <Label>Минимальная цена</Label>
-                <Input
-                  value={siteSettings.minPrice}
-                  onChange={(e) => setSiteSettings({...siteSettings, minPrice: e.target.value})}
-                  placeholder="10"
-                />
-              </div>
-
-              <div>
-                <Label>Максимальная цена</Label>
-                <Input
-                  value={siteSettings.maxPrice}
-                  onChange={(e) => setSiteSettings({...siteSettings, maxPrice: e.target.value})}
-                  placeholder="100000"
-                />
-              </div>
-
-              <div className="col-span-2">
-                <Button onClick={handleSaveSettings} className="w-full">
-                  <Save className="w-4 h-4 mr-2" />
-                  Сохранить настройки
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <AdminPanelContent
+          items={items}
+          categories={categories}
+          onAddItem={onAddItem}
+          onEditItem={onEditItem}
+          onDeleteItem={onDeleteItem}
+          onAddCategory={onAddCategory}
+          onEditCategory={onEditCategory}
+          onDeleteCategory={onDeleteCategory}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Header } from "@/components/Header";
 import { AdminPanel } from "@/components/AdminPanel";
 import { GameItem, Category } from "@/types";
 
@@ -28,18 +27,21 @@ export default function Admin({
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold mb-8 text-center">Панель администратора</h1>
-          <AdminPanel
-            items={items}
-            categories={categories}
-            onAddItem={onAddItem}
-            onEditItem={onEditItem}
-            onDeleteItem={onDeleteItem}
-            onAddCategory={onAddCategory}
-            onEditCategory={onEditCategory}
-            onDeleteCategory={onDeleteCategory}
-          />
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <AdminPanel
+              items={items}
+              categories={categories}
+              onAddItem={onAddItem}
+              onEditItem={onEditItem}
+              onDeleteItem={onDeleteItem}
+              onAddCategory={onAddCategory}
+              onEditCategory={onEditCategory}
+              onDeleteCategory={onDeleteCategory}
+              isStandalone={true}
+            />
+          </div>
         </div>
       </div>
     </div>
